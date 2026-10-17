@@ -1,0 +1,1 @@
+{"num":"01","slug":"hello-go","title":"Первый запрос к LLM (Go)","stack":"go","status":"done","created":"2026-01-01","updated":"2026-01-02","repo":"https://github.com/example/hello-go","env":["DEEPSEEK_API_KEY"],"tags":[]}

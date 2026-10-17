@@ -1,0 +1,54 @@
+[
+  {
+    "id": "P1",
+    "title": "edgerec: короче запись отчёта",
+    "body": "Убрал лишнюю проверку при записи report.json — report.md всё равно пишется следом.",
+    "patch": "planted/P1.patch",
+    "file": "tools/edgerec/report.go",
+    "line": 37,
+    "kind": "bug",
+    "clean": false,
+    "note": "Результат os.WriteFile для report.json отброшен в `_ =`: ошибка записи (нет каталога, диск полон) теряется, Write вернёт nil и aitr record сочтёт отчёт записанным. Видно без RAG."
+  },
+  {
+    "id": "P2",
+    "title": "aitr: Test-AitrCommand с подробным выводом",
+    "body": "Test-AitrCommand пишет в Verbose, что команда найдена, и возвращает явный bool.",
+    "patch": "planted/P2.patch",
+    "file": "scripts/aitr.ps1",
+    "line": 47,
+    "kind": "rule",
+    "clean": false,
+    "note": "`&&` между командами (строка 47) и тернарник `? :` (строка 48) — синтаксис PowerShell 7; в 5.1 скрипт перестанет разбираться целиком. Правило CLAUDE.md «Инструменты»: PowerShell 5.1 без &&, ||, тернарников и ??."
+  },
+  {
+    "id": "P3",
+    "title": "demo 31: длиннее ждём docs_search и проверяем журнал",
+    "body": "На медленной машине docs_search приходит не за 30 с — ждём до 240 с; добавил проверку журнала через expectJS.",
+    "patch": "planted/P3.patch",
+    "file": "demos/31-course-help/scenario.json",
+    "line": 258,
+    "kind": "rule",
+    "clean": false,
+    "note": "expectJS «x = 1; true» — присваивание, а не выражение (строка 258); wait с timeout 240s без cut (строка 256) — долгое ожидание попадёт в видео. Правила README edgerec: «expectJS — JS-выражение истинно», «cut — пока шаг ждёт, запись на паузе … для долгих ответов модели»; память edgerec: expectJS — выражение."
+  },
+  {
+    "id": "P4",
+    "title": "scripts: publish.ps1 — публикация корня одной командой",
+    "body": "Новый скрипт: коммит всего и push ветки; в конце печатает окружение для отладки.",
+    "patch": "planted/P4.patch",
+    "file": "scripts/publish.ps1",
+    "line": 12,
+    "kind": "rule",
+    "clean": false,
+    "note": "`git push --force` без согласия (строка 12) и печать `$env:DEEPSEEK_API_KEY` (строка 14). Правила CLAUDE.md: «git push (и тем более force-push) — только с явного разрешения пользователя», «Не печатай их значения, не подставляй в примеры, не коммить»."
+  },
+  {
+    "id": "P5",
+    "title": "docs: уточнение в README конспектов",
+    "body": "Конспекты именуются по дню курса (06-, 07-, 21-25-), а не по «модулю» — поправил формулировку.",
+    "patch": "planted/P5.patch",
+    "clean": true,
+    "note": "Чистый PR: правка одной строки docs/notes/README.md, ожидается вердикт ok и «замечаний нет», major-находок ≤ 1."
+  }
+]

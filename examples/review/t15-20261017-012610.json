@@ -1,0 +1,666 @@
+[
+  {
+    "trial": "И-15",
+    "stand": "prs",
+    "mechanism": "review.rag",
+    "model": "deepseek-v4-flash",
+    "started": "2026-10-17T01:26:10.4906085+03:00",
+    "seconds": 262.6803035,
+    "lanes": [
+      {
+        "name": "main",
+        "note": "основная: docs_search по регламенту и карточкам",
+        "features": {
+          "close.verify": true,
+          "files.gates": true,
+          "help.rag": true,
+          "help.tools": true,
+          "review.rag": true,
+          "sources.envelope": true,
+          "sources.scan": true,
+          "support.context": true
+        }
+      },
+      {
+        "name": "norag",
+        "note": "без базы документации (read_file, repo_search, git_log остаются)",
+        "features": {
+          "close.verify": true,
+          "files.gates": true,
+          "help.rag": true,
+          "help.tools": true,
+          "review.rag": false,
+          "sources.envelope": true,
+          "sources.scan": true,
+          "support.context": true
+        }
+      },
+      {
+        "name": "same",
+        "features": {
+          "close.verify": true,
+          "files.gates": true,
+          "help.rag": true,
+          "help.tools": true,
+          "review.rag": true,
+          "sources.envelope": true,
+          "sources.scan": true,
+          "support.context": true
+        },
+        "same": true
+      }
+    ],
+    "checks": [
+      {
+        "what": "посаженные проблемы найдены",
+        "lane": "main",
+        "ok": true,
+        "got": "4/4",
+        "need": "≥ 3/4"
+      },
+      {
+        "what": "bug (P1) найден",
+        "lane": "main",
+        "ok": true,
+        "got": "1/1",
+        "need": "1/1"
+      },
+      {
+        "what": "bug (P1) найден без базы",
+        "lane": "norag",
+        "ok": true,
+        "got": "1/1",
+        "need": "1/1"
+      },
+      {
+        "what": "rule (P2–P4): с цитатой правила — с базой больше, чем без, сверх шума",
+        "lane": "norag",
+        "ok": true,
+        "got": "main 3/3, norag 0/3, повтор 3/3 (шум 0)",
+        "need": "разница \u003e шум"
+      },
+      {
+        "what": "чистый PR (P5): major",
+        "lane": "main",
+        "ok": true,
+        "got": "0",
+        "need": "≤ 1"
+      },
+      {
+        "what": "находок вне hunk'ов",
+        "lane": "main",
+        "ok": true,
+        "got": "0",
+        "need": "0"
+      },
+      {
+        "what": "вердикт согласован с посадкой",
+        "lane": "main",
+        "ok": true,
+        "got": "5/5",
+        "need": "5/5"
+      },
+      {
+        "what": "«не проверено»",
+        "lane": "main",
+        "ok": true,
+        "got": "0",
+        "need": "0"
+      },
+      {
+        "what": "запросов на ход (среднее)",
+        "lane": "main",
+        "ok": true,
+        "got": "2.6",
+        "need": "≤ 6"
+      }
+    ],
+    "metrics": [
+      {
+        "name": "rule найдены: падение без базы",
+        "lane": "norag",
+        "value": 0,
+        "note": "шум 0 — отчётно"
+      },
+      {
+        "name": "посаженные найдены",
+        "lane": "main",
+        "value": 4,
+        "note": "4/4"
+      },
+      {
+        "name": "bug найден",
+        "lane": "main",
+        "value": 1,
+        "note": "1/1"
+      },
+      {
+        "name": "rule найдены",
+        "lane": "main",
+        "value": 3,
+        "note": "3/3"
+      },
+      {
+        "name": "rule с цитатой документа",
+        "lane": "main",
+        "value": 3,
+        "note": "3/3"
+      },
+      {
+        "name": "чистый PR: major",
+        "lane": "main",
+        "value": 0
+      },
+      {
+        "name": "чистый PR: verdict ok",
+        "lane": "main",
+        "value": 0,
+        "note": "0/1"
+      },
+      {
+        "name": "вердикт согласован",
+        "lane": "main",
+        "value": 5,
+        "note": "5/5"
+      },
+      {
+        "name": "находок всего",
+        "lane": "main",
+        "value": 10
+      },
+      {
+        "name": "находок вне hunk'ов",
+        "lane": "main",
+        "value": 0
+      },
+      {
+        "name": "отказов финишёра",
+        "lane": "main",
+        "value": 1
+      },
+      {
+        "name": "«не проверено»",
+        "lane": "main",
+        "value": 0
+      },
+      {
+        "name": "запросов на ход",
+        "lane": "main",
+        "value": 2.6
+      },
+      {
+        "name": "постоянная часть",
+        "lane": "main",
+        "value": 2435,
+        "unit": "токенов",
+        "note": "наибольшая за дорожку"
+      },
+      {
+        "name": "цена",
+        "lane": "main",
+        "value": 0.003462247,
+        "unit": "$",
+        "note": "непиковый"
+      },
+      {
+        "name": "время",
+        "lane": "main",
+        "value": 64.13490490000001,
+        "unit": "с"
+      },
+      {
+        "name": "посаженные найдены",
+        "lane": "norag",
+        "value": 4,
+        "note": "4/4"
+      },
+      {
+        "name": "bug найден",
+        "lane": "norag",
+        "value": 1,
+        "note": "1/1"
+      },
+      {
+        "name": "rule найдены",
+        "lane": "norag",
+        "value": 3,
+        "note": "3/3"
+      },
+      {
+        "name": "rule с цитатой документа",
+        "lane": "norag",
+        "value": 0,
+        "note": "0/3"
+      },
+      {
+        "name": "чистый PR: major",
+        "lane": "norag",
+        "value": 0
+      },
+      {
+        "name": "чистый PR: verdict ok",
+        "lane": "norag",
+        "value": 0,
+        "note": "0/1"
+      },
+      {
+        "name": "вердикт согласован",
+        "lane": "norag",
+        "value": 5,
+        "note": "5/5"
+      },
+      {
+        "name": "находок всего",
+        "lane": "norag",
+        "value": 10
+      },
+      {
+        "name": "находок вне hunk'ов",
+        "lane": "norag",
+        "value": 0
+      },
+      {
+        "name": "отказов финишёра",
+        "lane": "norag",
+        "value": 0
+      },
+      {
+        "name": "«не проверено»",
+        "lane": "norag",
+        "value": 0
+      },
+      {
+        "name": "запросов на ход",
+        "lane": "norag",
+        "value": 3.8
+      },
+      {
+        "name": "постоянная часть",
+        "lane": "norag",
+        "value": 2227,
+        "unit": "токенов",
+        "note": "наибольшая за дорожку"
+      },
+      {
+        "name": "цена",
+        "lane": "norag",
+        "value": 0.00863102,
+        "unit": "$",
+        "note": "непиковый"
+      },
+      {
+        "name": "время",
+        "lane": "norag",
+        "value": 128.1597973,
+        "unit": "с"
+      },
+      {
+        "name": "посаженные найдены",
+        "lane": "same",
+        "value": 4,
+        "note": "4/4"
+      },
+      {
+        "name": "bug найден",
+        "lane": "same",
+        "value": 1,
+        "note": "1/1"
+      },
+      {
+        "name": "rule найдены",
+        "lane": "same",
+        "value": 3,
+        "note": "3/3"
+      },
+      {
+        "name": "rule с цитатой документа",
+        "lane": "same",
+        "value": 3,
+        "note": "3/3"
+      },
+      {
+        "name": "чистый PR: major",
+        "lane": "same",
+        "value": 0
+      },
+      {
+        "name": "чистый PR: verdict ok",
+        "lane": "same",
+        "value": 0,
+        "note": "0/1"
+      },
+      {
+        "name": "вердикт согласован",
+        "lane": "same",
+        "value": 5,
+        "note": "5/5"
+      },
+      {
+        "name": "находок всего",
+        "lane": "same",
+        "value": 11
+      },
+      {
+        "name": "находок вне hunk'ов",
+        "lane": "same",
+        "value": 0
+      },
+      {
+        "name": "отказов финишёра",
+        "lane": "same",
+        "value": 1
+      },
+      {
+        "name": "«не проверено»",
+        "lane": "same",
+        "value": 0
+      },
+      {
+        "name": "запросов на ход",
+        "lane": "same",
+        "value": 2.6
+      },
+      {
+        "name": "постоянная часть",
+        "lane": "same",
+        "value": 2435,
+        "unit": "токенов",
+        "note": "наибольшая за дорожку"
+      },
+      {
+        "name": "цена",
+        "lane": "same",
+        "value": 0.004789967,
+        "unit": "$",
+        "note": "непиковый"
+      },
+      {
+        "name": "время",
+        "lane": "same",
+        "value": 70.37242499999999,
+        "unit": "с"
+      }
+    ],
+    "cost": {
+      "usd": 0.016883234,
+      "tariff": "непиковый",
+      "known": true
+    },
+    "requests": 45,
+    "rows": [
+      {
+        "lane": "main",
+        "id": "P1",
+        "type": "planted",
+        "split": "",
+        "q": "edgerec: короче запись отчёта",
+        "status": "changes",
+        "answer": "Убрана проверка ошибки записи report.json: сбой записи теперь не виден вызывающему, а curator читает именно report.json — это баг, который нельзя сливать. Замечание одно.",
+        "ok": true,
+        "steps": 2,
+        "calls": [
+          "docs_search",
+          "read_file",
+          "repo_search"
+        ],
+        "seconds": 3.8926945
+      },
+      {
+        "lane": "main",
+        "id": "P2",
+        "type": "planted",
+        "split": "",
+        "q": "aitr: Test-AitrCommand с подробным выводом",
+        "status": "changes",
+        "answer": "Обе новые строки используют синтаксис, которого нет в PowerShell 5.1: `\u0026\u0026` и тернарник. Скрипт перестанет загружаться при dot-source, то есть сломается весь aitr. Нужно переписать через `;` и `if`.",
+        "ok": true,
+        "steps": 1,
+        "calls": [
+          "docs_search"
+        ],
+        "seconds": 3.0561582
+      },
+      {
+        "lane": "main",
+        "id": "P3",
+        "type": "planted",
+        "split": "",
+        "q": "demo 31: длиннее ждём docs_search и проверяем журнал",
+        "status": "changes",
+        "answer": "Таймаут 240 с сам по себе разумен, но добавленный шаг `expectJS: \\\"x = 1; true\\\"` — пустая заглушка вместо обещанной проверки журнала, а долгое ожидание оставлено без `cut`. Нужно заменить выражение на реальную проверку журнала и пометить шаг `cut: true`.",
+        "ok": true,
+        "steps": 4,
+        "calls": [
+          "docs_search",
+          "read_file",
+          "docs_search",
+          "repo_search",
+          "repo_search",
+          "read_file"
+        ],
+        "seconds": 16.1582578
+      },
+      {
+        "lane": "main",
+        "id": "P4",
+        "type": "planted",
+        "split": "",
+        "q": "scripts: publish.ps1 — публикация корня одной командой",
+        "status": "changes",
+        "answer": "Скрипт публикации нарушает два правила проекта: force-push без согласования и печать значения ключа DEEPSEEK_API_KEY. Плюс не проверяются коды возврата git-команд, а `git commit -am` не покрывает новые файлы вопреки описанию PR.",
+        "ok": true,
+        "steps": 1,
+        "calls": [
+          "docs_search"
+        ],
+        "seconds": 4.3174178
+      },
+      {
+        "lane": "main",
+        "id": "P5",
+        "type": "clean",
+        "split": "",
+        "q": "docs: уточнение в README конспектов",
+        "status": "changes",
+        "answer": "Правка одной строки в docs/notes/README.md по сути верна, но оставляет расхождение с корневым README.md, где конспекты по-прежнему описаны как «по модулям».",
+        "ok": true,
+        "steps": 5,
+        "calls": [
+          "docs_search",
+          "read_file",
+          "repo_search",
+          "repo_search",
+          "repo_search",
+          "read_file",
+          "read_file"
+        ],
+        "seconds": 36.710376600000004
+      },
+      {
+        "lane": "norag",
+        "id": "P1",
+        "type": "planted",
+        "split": "",
+        "q": "edgerec: короче запись отчёта",
+        "status": "changes",
+        "answer": "Убрана проверка ошибки при записи report.json — ошибка записи теперь игнорируется, из-за чего прогон может отчитаться об успехе без актуального машинного отчёта. Нужно вернуть обработку ошибки.",
+        "ok": true,
+        "steps": 6,
+        "calls": [
+          "read_file",
+          "repo_search",
+          "repo_search",
+          "repo_search",
+          "read_file",
+          "repo_search",
+          "repo_search",
+          "repo_search",
+          "read_file",
+          "repo_search"
+        ],
+        "seconds": 23.8365717
+      },
+      {
+        "lane": "norag",
+        "id": "P2",
+        "type": "planted",
+        "split": "",
+        "q": "aitr: Test-AitrCommand с подробным выводом",
+        "status": "changes",
+        "answer": "В Test-AitrCommand добавлены `\u0026\u0026` и тернарник — оба не поддерживаются PowerShell 5.1, под который написан aitr.ps1: файл перестанет загружаться при dot-source. Нужно переписать через `;` и `if`. Замечания по существу PR (Verbose и явный bool) можно сохранить без нового синтаксиса.",
+        "ok": true,
+        "steps": 2,
+        "calls": [
+          "read_file",
+          "repo_search"
+        ],
+        "seconds": 13.2507393
+      },
+      {
+        "lane": "norag",
+        "id": "P3",
+        "type": "planted",
+        "split": "",
+        "q": "demo 31: длиннее ждём docs_search и проверяем журнал",
+        "status": "changes",
+        "answer": "В сценарии demos/31-course-help два нарушения правил edgerec: expectJS с присваиванием вместо выражения и долгое ожидание 240 с без cut. Нужно исправить оба перед слиянием.",
+        "ok": true,
+        "steps": 4,
+        "calls": [
+          "read_file",
+          "repo_search",
+          "repo_search",
+          "read_file",
+          "repo_search"
+        ],
+        "seconds": 21.4617369
+      },
+      {
+        "lane": "norag",
+        "id": "P4",
+        "type": "planted",
+        "split": "",
+        "q": "scripts: publish.ps1 — публикация корня одной командой",
+        "status": "changes",
+        "answer": "Скрипт нарушает два правила проекта: force-push без явного разрешения пользователя (строка 12) и печать значения ключа DEEPSEEK_API_KEY (строка 14). Дополнительно нет проверки кода возврата git commit/push, из-за чего успех сообщается даже при ошибке.",
+        "ok": true,
+        "steps": 3,
+        "calls": [
+          "repo_search",
+          "repo_search",
+          "read_file",
+          "read_file"
+        ],
+        "seconds": 20.8270866
+      },
+      {
+        "lane": "norag",
+        "id": "P5",
+        "type": "clean",
+        "split": "",
+        "q": "docs: уточнение в README конспектов",
+        "status": "changes",
+        "answer": "Правка формулировки в docs/notes/README.md сама по себе корректна, но корневой README.md (строка 56) всё ещё описывает docs/notes как «конспекты по модулям» — формулировки разошлись. Одно замечание уровня minor.",
+        "ok": true,
+        "steps": 4,
+        "calls": [
+          "read_file",
+          "repo_search",
+          "repo_search",
+          "repo_search",
+          "read_file",
+          "repo_search"
+        ],
+        "seconds": 48.7836628
+      },
+      {
+        "lane": "same",
+        "id": "P1",
+        "type": "planted",
+        "split": "",
+        "q": "edgerec: короче запись отчёта",
+        "status": "changes",
+        "answer": "Убрана проверка ошибки записи report.json: сбой записи теперь не виден вызывающему коду, хотя report.json — машинный итог прогона, который читает curator. Замечание одно, блокирующее.",
+        "ok": true,
+        "steps": 2,
+        "calls": [
+          "docs_search",
+          "read_file",
+          "repo_search"
+        ],
+        "seconds": 17.5422609
+      },
+      {
+        "lane": "same",
+        "id": "P2",
+        "type": "planted",
+        "split": "",
+        "q": "aitr: Test-AitrCommand с подробным выводом",
+        "status": "changes",
+        "answer": "Обе новые строки используют синтаксис, недоступный в PowerShell 5.1: `\u0026\u0026` и тернарник — скрипт не загрузится. Нужно переписать через `;` и `if`. Замечания по существу PR (Verbose и явный bool) учтены, но реализация нерабочая.",
+        "ok": true,
+        "steps": 1,
+        "calls": [
+          "docs_search"
+        ],
+        "seconds": 2.6102575999999997
+      },
+      {
+        "lane": "same",
+        "id": "P3",
+        "type": "planted",
+        "split": "",
+        "q": "demo 31: длиннее ждём docs_search и проверяем журнал",
+        "status": "changes",
+        "answer": "Добавленный шаг `expectJS: \"x = 1; true\"` — заглушка: он всегда проходит и ничего не проверяет, хотя PR заявляет проверку журнала; кроме того, у шага с ожиданием 240 с нет `cut`, и в видео попадёт долгий статичный кадр. Нужны реальная проверка журнала и `cut: true`.",
+        "ok": true,
+        "steps": 4,
+        "calls": [
+          "docs_search",
+          "read_file",
+          "docs_search",
+          "repo_search",
+          "repo_search",
+          "read_file"
+        ],
+        "seconds": 8.4201206
+      },
+      {
+        "lane": "same",
+        "id": "P4",
+        "type": "planted",
+        "split": "",
+        "q": "scripts: publish.ps1 — публикация корня одной командой",
+        "status": "changes",
+        "answer": "Скрипт публикует корень с force-push без согласования и печатает значение ключа DeepSeek — оба нарушения правил проекта, плюс не проверяются результаты git-команд. Нужны правки до слияния.",
+        "ok": true,
+        "steps": 1,
+        "calls": [
+          "docs_search"
+        ],
+        "seconds": 5.01391
+      },
+      {
+        "lane": "same",
+        "id": "P5",
+        "type": "clean",
+        "split": "",
+        "q": "docs: уточнение в README конспектов",
+        "status": "changes",
+        "answer": "Правка формулировки в docs/notes/README.md сама по себе корректна, но корневой README.md в разделе «Что где лежит» всё ещё описывает конспекты как «конспекты по модулям» — расхождение с новым текстом. Замечание одно, не блокирующее.",
+        "ok": true,
+        "steps": 5,
+        "calls": [
+          "docs_search",
+          "read_file",
+          "repo_search",
+          "repo_search",
+          "repo_search",
+          "read_file",
+          "read_file"
+        ],
+        "seconds": 36.7858759
+      }
+    ]
+  }
+]

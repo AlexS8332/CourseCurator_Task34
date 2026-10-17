@@ -1,0 +1,17 @@
+{
+  "id": "F4",
+  "goal": "Собери docs/changelog-week7.md — хронику недели 7 по карточкам заданий 26–30 (docs/cards/26-*.md … 30-*.md): по разделу на задание (заголовок с номером и названием), в каждом 3–5 пунктов, и каждый пункт содержит дословную цитату из карточки в кавычках-ёлочках «…» (не короче одного предложения, скопированную без изменений). Добавь ссылку на хронику в docs/notes/README.md.",
+  "expect": {
+    "files_min": 2,
+    "files_allowed": ["docs/"],
+    "writes": true,
+    "checks": [
+      {"kind": "exists", "path": "docs/changelog-week7.md"},
+      {"kind": "contains", "path": "docs/changelog-week7.md", "text": "26"},
+      {"kind": "contains", "path": "docs/changelog-week7.md", "text": "30"},
+      {"kind": "regex", "path": "docs/changelog-week7.md", "pattern": "(?m)^#{1,3} .*2[6-9]|^#{1,3} .*30"},
+      {"kind": "quotes_verbatim", "path": "docs/changelog-week7.md", "source": "docs/cards/26-*.md,docs/cards/27-*.md,docs/cards/28-*.md,docs/cards/29-*.md,docs/cards/30-*.md", "min": 1},
+      {"kind": "contains", "path": "docs/notes/README.md", "text": "changelog-week7"}
+    ]
+  }
+}

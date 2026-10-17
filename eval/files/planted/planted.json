@@ -1,0 +1,19 @@
+[
+  {
+    "id": "C27",
+    "file": "docs/cards/27-animal-guide-local-app.md",
+    "copy": "planted/27-animal-guide-local-app.md",
+    "violation": "no_section",
+    "section": "## Выводы",
+    "note": "Копия карточки 27 без раздела «## Выводы» (удалён целиком, от заголовка до «## Контрольный прогон»). По шаблону templates/card.md раздел обязателен — F3 должен пометить карточку «нарушение: нет раздела Выводы»."
+  },
+  {
+    "id": "C29",
+    "file": "docs/cards/29-animal-guide-local-tune.md",
+    "copy": "planted/29-animal-guide-local-tune.md",
+    "violation": "repo_mismatch",
+    "card_repo": "https://github.com/AlexS8332/AnimalGuide_Task29",
+    "registry_repo": "",
+    "note": "Копия карточки 29, где в таблице строка «Репозиторий» заменена на URL https://github.com/AlexS8332/AnimalGuide_Task29 (публичный), тег v29. В docs/registry.json и assignments/29-animal-guide-local-tune/assignment.json поле repo пустое (задание заведено с -NoRemote, не опубликовано) — URL в карточке не совпадает с реестром. F3 должен пометить карточку «нарушение: URL репозитория не совпадает с реестром»; остальные разделы на месте."
+  }
+]

@@ -1,0 +1,15 @@
+diff --git a/scripts/aitr.ps1 b/scripts/aitr.ps1
+index 912fbf6..5c15d80 100644
+--- a/scripts/aitr.ps1
++++ b/scripts/aitr.ps1
+@@ -44,8 +44,8 @@ function Write-AitrHead { param([string]$Text) Write-Host ""; Write-Host $Text -
+ 
+ function Test-AitrCommand {
+     param([string]$Name)
+-    $cmd = Get-Command $Name -ErrorAction SilentlyContinue
+-    return ($null -ne $cmd)
++    $cmd = Get-Command $Name -ErrorAction SilentlyContinue && Write-Verbose ('команда найдена: ' + $Name)
++    return ($null -ne $cmd) ? $true : $false
+ }
+ 
+ function Get-AitrOption {

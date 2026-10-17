@@ -1,0 +1,1346 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:">
+<title>Куратор курса</title>
+<style>
+:root {
+  --bg: #f6f6f3; --panel: #ffffff; --ink: #1d1d1b; --muted: #6b6b66; --line: #deddd6;
+  --accent: #2f6f4f; --accent-ink: #ffffff; --user: #e7f0ea; --err-bg: #fbeceb; --err: #9b2c24;
+  --ok: #2f6f4f; --rej: #b4532a; --warn-bg: #fff6df; --warn: #7a5a00; --code: #ecebe4;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161715; --panel: #1f201d; --ink: #e8e7e2; --muted: #9a9a92; --line: #33342f;
+    --accent: #6fbf94; --accent-ink: #10130f; --user: #23302a; --err-bg: #3a1f1c; --err: #f0a39b;
+    --ok: #6fbf94; --rej: #f0a36b; --warn-bg: #3a3214; --warn: #f0d27a; --code: #2a2b27;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  display: flex; flex-direction: column; }
+header { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; padding: 8px 16px;
+  border-bottom: 1px solid var(--line); background: var(--panel); }
+header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+#status { font-size: 12px; color: var(--muted); margin-left: auto; }
+#status.stale { color: var(--warn); }
+#tabs { display: flex; gap: 2px; flex-wrap: wrap; width: 100%; }
+.tab { border: 0; background: transparent; color: var(--muted); padding: 6px 10px; border-bottom: 2px solid transparent;
+  border-radius: 0; cursor: pointer; font-size: 14px; }
+.tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+.tab:disabled { opacity: .55; cursor: default; }
+#body { flex: 1; display: flex; min-height: 0; }
+#main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+#log { flex: 1; overflow-y: auto; padding: 16px; }
+.msg { max-width: 820px; margin: 0 auto 12px; padding: 10px 12px; border-radius: 8px; background: var(--panel);
+  border: 1px solid var(--line); overflow-wrap: anywhere; }
+.msg .text { white-space: pre-wrap; }
+.msg.user { background: var(--user); }
+.msg.error { background: var(--err-bg); color: var(--err); border-color: transparent; }
+.msg.pending .text { color: var(--muted); font-style: italic; }
+.msg .meta { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.msg .badge { display: inline-block; font-size: 12px; padding: 1px 7px; border-radius: 10px; margin-right: 6px; }
+.badge.unknown { background: var(--warn-bg); color: var(--warn); }
+.badge.unverified { background: var(--err-bg); color: var(--err); }
+.badge.ok { background: var(--user); color: var(--ok); }
+.msg ol { margin: 8px 0 0; padding-left: 22px; font-size: 13px; }
+.msg ol li { margin-bottom: 4px; }
+.msg .clarify { margin-top: 6px; color: var(--warn); }
+.msg details { margin-top: 2px; }
+.msg summary { cursor: pointer; color: var(--muted); }
+.msg blockquote { margin: 4px 0 4px 8px; padding-left: 8px; border-left: 2px solid var(--accent); color: var(--muted); font-size: 13px; }
+.msg .facts { margin-top: 8px; font-size: 13px; }
+.msg .facts li { list-style: none; }
+.msg .problems { margin-top: 6px; font-size: 13px; color: var(--err); }
+code, .chunk { font-family: ui-monospace, Consolas, monospace; font-size: 12px; background: var(--code); padding: 0 4px; border-radius: 4px; }
+#form { display: flex; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--line); background: var(--panel); }
+#input { flex: 1; resize: vertical; min-height: 44px; max-height: 40vh; font: inherit; color: inherit; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+button { font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button:disabled { opacity: .5; cursor: default; }
+#journal { width: 380px; border-left: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; min-height: 0; }
+#journal h2 { font-size: 13px; font-weight: 600; margin: 0; padding: 8px 12px; border-bottom: 1px solid var(--line); color: var(--muted);
+  display: flex; align-items: center; }
+#journal h2 span { margin-left: auto; font-weight: 400; }
+#calls { flex: 1; overflow-y: auto; padding: 8px 12px; font-size: 13px; }
+.turn { color: var(--muted); font-size: 12px; margin: 10px 0 4px; border-top: 1px dashed var(--line); padding-top: 6px; }
+.turn:first-child { border-top: 0; margin-top: 0; }
+.call { padding: 6px 8px; margin-bottom: 6px; border-radius: 6px; border: 1px solid var(--line); border-left-width: 4px; }
+.call[data-status=pending] { border-left-color: var(--muted); }
+.call[data-status=ok] { border-left-color: var(--ok); }
+.call[data-status=rejected], .call[data-status=error] { border-left-color: var(--rej); }
+.call .head { display: flex; gap: 6px; align-items: baseline; }
+.call .tool { font-family: ui-monospace, Consolas, monospace; font-weight: 600; }
+.call .by { color: var(--muted); font-size: 12px; }
+.call .secs { margin-left: auto; color: var(--muted); font-size: 12px; white-space: nowrap; }
+.call .args { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+.call .why { margin-top: 4px; color: var(--rej); font-size: 12px; white-space: pre-wrap; }
+.call .result { margin-top: 4px; color: var(--muted); font-size: 12px; }
+.step { color: var(--muted); font-size: 12px; margin: 4px 0; }
+.step.mech { color: var(--warn); }
+.placeholder { max-width: 820px; margin: 24px auto; color: var(--muted); text-align: center; }
+#jtoggle { display: none; }
+/* --- вкладка «Тикеты» --- */
+#support { flex: 1; display: flex; min-height: 0; }
+#support[hidden] { display: none; }
+#tickets { width: 300px; border-right: 1px solid var(--line); background: var(--panel); overflow-y: auto; }
+.ticket { padding: 8px 12px; border-bottom: 1px solid var(--line); cursor: pointer; }
+.ticket:hover { background: var(--bg); }
+.ticket.selected { background: var(--user); }
+.ticket .row { display: flex; gap: 6px; align-items: baseline; font-size: 12px; color: var(--muted); }
+.ticket .id { font-family: ui-monospace, Consolas, monospace; }
+.ticket .subject { font-size: 14px; color: var(--ink); margin: 2px 0; }
+.ticket .user { font-size: 12px; color: var(--muted); }
+.badge.status { margin-left: auto; margin-right: 0; }
+.badge.status[data-status=open] { background: var(--warn-bg); color: var(--warn); }
+.badge.status[data-status=resolved] { background: var(--user); color: var(--ok); }
+.badge.status[data-status=escalated] { background: var(--err-bg); color: var(--err); }
+.badge.action { background: var(--code); color: var(--ink); }
+.badge.action[data-action=resolve] { background: var(--user); color: var(--ok); }
+.badge.action[data-action=escalate] { background: var(--err-bg); color: var(--err); }
+#ticket { flex: 1; overflow-y: auto; padding: 16px; min-width: 0; }
+#ticket .card, #ticket .reply, #ticket .actions { max-width: 820px; margin: 0 auto 12px; }
+#ticket .card, #ticket .reply { padding: 10px 12px; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); overflow-wrap: anywhere; }
+#ticket .card[hidden], #ticket .actions[hidden], #ticket .reply[hidden] { display: none; }
+#ticket .card .head { display: flex; gap: 8px; align-items: center; }
+#ticket .card .head .id { font-family: ui-monospace, Consolas, monospace; color: var(--muted); font-size: 12px; }
+#ticket .subject { font-size: 16px; font-weight: 600; margin: 0; }
+#ticket .user { font-size: 13px; color: var(--muted); margin: 4px 0 8px; }
+#ticket .text { white-space: pre-wrap; }
+#ticket pre { white-space: pre-wrap; font-family: ui-monospace, Consolas, monospace; font-size: 12px; background: var(--code); padding: 6px 8px; border-radius: 6px; margin: 8px 0 0; }
+#ticket pre:empty, #ticket .events:empty { display: none; }
+#ticket .events { margin: 8px 0 0; padding: 0; font-size: 12px; color: var(--muted); }
+#ticket .events li { list-style: none; }
+#ticket .ctx { margin-top: 8px; }
+#ticket .ctx h3 { font-size: 12px; font-weight: 600; color: var(--muted); margin: 0; }
+#ticket .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+#ticket .actions input { flex: 1; min-width: 160px; font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+#ticket .reply.pending .text { color: var(--muted); font-style: italic; }
+#ticket .reply .note { margin-top: 6px; font-size: 13px; color: var(--muted); }
+#ticket .reply .meta { font-size: 12px; color: var(--muted); margin-top: 6px; }
+#ticket .reply .badge { display: inline-block; font-size: 12px; padding: 1px 7px; border-radius: 10px; margin-right: 6px; }
+#ticket .reply ol { margin: 8px 0 0; padding-left: 22px; font-size: 13px; }
+#ticket .reply ol li { margin-bottom: 4px; }
+#ticket .reply .clarify { margin-top: 6px; color: var(--warn); }
+#ticket .reply details { margin-top: 2px; }
+#ticket .reply summary { cursor: pointer; color: var(--muted); }
+#ticket .reply blockquote { margin: 4px 0 4px 8px; padding-left: 8px; border-left: 2px solid var(--accent); color: var(--muted); font-size: 13px; }
+#ticket .reply .problems { margin-top: 6px; font-size: 13px; color: var(--err); }
+/* --- вкладка «Ревью» --- */
+#review { flex: 1; display: flex; min-height: 0; }
+#review[hidden] { display: none; }
+#prs { width: 300px; border-right: 1px solid var(--line); background: var(--panel); overflow-y: auto; }
+.pr { padding: 8px 12px; border-bottom: 1px solid var(--line); cursor: pointer; }
+.pr:hover { background: var(--bg); }
+.pr.selected { background: var(--user); }
+.pr .row { display: flex; gap: 6px; align-items: baseline; font-size: 12px; color: var(--muted); }
+.pr .id { font-family: ui-monospace, Consolas, monospace; }
+.pr .title { font-size: 14px; color: var(--ink); margin: 2px 0; }
+.pr .note { font-size: 12px; color: var(--muted); }
+.badge.kind { margin-left: auto; margin-right: 0; background: var(--code); color: var(--ink); }
+.badge.kind[data-kind=bug] { background: var(--err-bg); color: var(--err); }
+.badge.kind[data-kind=rule], .badge.kind[data-kind=docs] { background: var(--warn-bg); color: var(--warn); }
+.badge.kind[data-kind=clean] { background: var(--user); color: var(--ok); }
+#review-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+#review-bar { display: flex; gap: 10px; align-items: center; padding: 8px 16px; border-bottom: 1px solid var(--line); background: var(--panel); font-size: 13px; }
+#review-bar .sel { color: var(--muted); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#panes { flex: 1; display: flex; min-height: 0; }
+#diff { flex: 1; overflow: auto; padding: 12px 16px; min-width: 0; font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+#diff .file { margin-bottom: 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); overflow: hidden; }
+#diff .fhead { display: flex; gap: 8px; padding: 6px 10px; border-bottom: 1px solid var(--line); font-weight: 600; font-family: system-ui, sans-serif; font-size: 13px; }
+#diff .fhead .status { color: var(--muted); font-weight: 400; }
+#diff .fhead .plus { color: var(--ok); } #diff .fhead .minus { color: var(--rej); }
+#diff .hhead { padding: 3px 10px; color: var(--muted); background: var(--bg); }
+#diff .line { display: flex; white-space: pre; }
+#diff .line .no { width: 44px; flex: none; text-align: right; padding-right: 6px; color: var(--muted); user-select: none; }
+#diff .line .txt { flex: 1; padding-left: 8px; overflow-wrap: anywhere; white-space: pre-wrap; }
+#diff .line[data-kind=add] { background: var(--user); }
+#diff .line[data-kind=del] { background: var(--err-bg); text-decoration: line-through; }
+#diff .line.flagged { outline: 2px solid var(--rej); outline-offset: -2px; }
+#diff .line.flagged .txt::before { content: "▶ "; color: var(--rej); }
+#result { width: 440px; border-left: 1px solid var(--line); background: var(--panel); overflow-y: auto; padding: 12px 14px; }
+#result[hidden] { display: none; }
+#result h3 { font-size: 12px; font-weight: 600; color: var(--muted); margin: 10px 0 4px; }
+#result .badge { display: inline-block; font-size: 12px; padding: 1px 7px; border-radius: 10px; margin-right: 6px; }
+#verdict .badge[data-verdict=ok] { background: var(--user); color: var(--ok); }
+#verdict .badge[data-verdict=changes] { background: var(--err-bg); color: var(--err); }
+#verdict .badge.pending { background: var(--code); color: var(--muted); font-style: italic; }
+#planted .badge.found { background: var(--user); color: var(--ok); }
+#planted .badge.missed { background: var(--err-bg); color: var(--err); }
+#planted:empty, #summary:empty, #ci[hidden], #planted[hidden] { display: none; }
+#summary { font-size: 14px; white-space: pre-wrap; }
+.finding { padding: 8px 10px; margin-bottom: 8px; border: 1px solid var(--line); border-left-width: 4px; border-radius: 6px; font-size: 13px; }
+.finding[data-severity=major] { border-left-color: var(--rej); }
+.finding[data-severity=minor] { border-left-color: var(--warn); }
+.finding .head { display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
+.finding .where { font-family: ui-monospace, Consolas, monospace; cursor: pointer; text-decoration: underline dotted; }
+.finding .text { margin-top: 4px; }
+.finding .evidence { margin-top: 4px; font-size: 12px; color: var(--muted); }
+.finding .evidence blockquote { margin: 4px 0 0 8px; padding-left: 8px; border-left: 2px solid var(--accent); font-size: 12px; }
+.badge.severity[data-severity=major] { background: var(--err-bg); color: var(--err); }
+.badge.severity[data-severity=minor] { background: var(--warn-bg); color: var(--warn); }
+#ci { margin-top: 12px; padding: 8px 10px; border: 1px dashed var(--line); border-radius: 6px; font-size: 13px; }
+#ci .verdict[data-verdict=ok] { color: var(--ok); } #ci .verdict[data-verdict=changes] { color: var(--err); }
+#review-md { margin-top: 10px; font-size: 12px; }
+#review-md pre { white-space: pre-wrap; font-family: ui-monospace, Consolas, monospace; background: var(--code); padding: 6px 8px; border-radius: 6px; }
+#result .meta { font-size: 12px; color: var(--muted); margin-top: 8px; }
+/* --- вкладка «Файлы» --- */
+#files { flex: 1; display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+#files[hidden] { display: none; }
+#goal-bar { display: flex; gap: 10px; align-items: flex-start; padding: 8px 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
+#goal { flex: 1; resize: vertical; min-height: 40px; max-height: 30vh; font: inherit; color: inherit; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+#files-panes { flex: 1; display: flex; min-height: 0; }
+#files-result { width: 480px; border-left: 1px solid var(--line); background: var(--panel); overflow-y: auto; padding: 12px 14px; font-size: 13px; }
+#files-result h3 { font-size: 12px; font-weight: 600; color: var(--muted); margin: 10px 0 4px; }
+#files-result .badge { display: inline-block; font-size: 12px; padding: 1px 7px; border-radius: 10px; margin-right: 6px; }
+.badge.stage { background: var(--code); color: var(--ink); }
+.badge.stage[data-stage=approve] { background: var(--warn-bg); color: var(--warn); }
+.badge.stage[data-stage=done] { background: var(--user); color: var(--ok); }
+.badge.stage[data-stage=apply] { background: var(--warn-bg); color: var(--warn); }
+#plan .head { display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
+#plan .head .run { font-family: ui-monospace, Consolas, monospace; color: var(--muted); font-size: 12px; }
+#plan .files { margin: 6px 0 0; padding: 0; }
+#plan .file { list-style: none; padding: 6px 8px; margin-bottom: 4px; border: 1px solid var(--line); border-left-width: 4px; border-left-color: var(--accent); border-radius: 6px; }
+#plan .file[data-new=true] { border-left-color: var(--warn); }
+#plan .file .path { font-family: ui-monospace, Consolas, monospace; }
+#plan .file .new { color: var(--warn); font-size: 12px; margin-left: 6px; }
+#plan .file .why { color: var(--muted); font-size: 12px; }
+#plan .steps { margin: 6px 0 0; padding-left: 22px; }
+#plan .steps li { margin-bottom: 3px; }
+#rights { margin-top: 8px; padding: 6px 8px; border: 1px dashed var(--line); border-radius: 6px; font-size: 12px; }
+#rights:empty { display: none; }
+#rights .write.gated { color: var(--warn); }
+#rights .write.granted { color: var(--ok); }
+#rights code { font-size: 11px; }
+#files-note { margin-top: 6px; color: var(--warn); font-size: 13px; }
+#files-note:empty { display: none; }
+#consent { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
+#consent[hidden] { display: none; }
+#reply { flex: 1; min-width: 160px; font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+#report[hidden] { display: none; }
+#report .branch { font-family: ui-monospace, Consolas, monospace; margin-top: 4px; }
+#report .commit { font-family: ui-monospace, Consolas, monospace; color: var(--muted); font-size: 12px; }
+#report .changed { margin: 4px 0 0; padding-left: 20px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+#report .counters { margin-top: 6px; font-size: 12px; }
+#report .counters .bad { color: var(--err); }
+#report .counters .good { color: var(--ok); }
+#report .summary { margin-top: 4px; white-space: pre-wrap; }
+#report pre { white-space: pre-wrap; font-family: ui-monospace, Consolas, monospace; font-size: 12px; background: var(--code); padding: 6px 8px; border-radius: 6px; }
+#runs { margin-top: 12px; padding-top: 6px; border-top: 1px dashed var(--line); font-size: 12px; color: var(--muted); }
+#runs .run { display: flex; gap: 6px; flex-wrap: wrap; padding: 2px 0; }
+#runs .run .id { font-family: ui-monospace, Consolas, monospace; }
+#files-result .meta { font-size: 12px; color: var(--muted); margin-top: 8px; }
+@media (max-width: 860px) {
+  #body { flex-direction: column; }
+  #support, #review, #panes, #files-panes { flex-direction: column; }
+  #prs { width: 100%; max-height: 30vh; border-right: 0; border-bottom: 1px solid var(--line); }
+  #result, #files-result { width: 100%; border-left: 0; border-top: 1px solid var(--line); }
+  #tickets { width: 100%; max-height: 30vh; border-right: 0; border-bottom: 1px solid var(--line); }
+  #journal { width: 100%; border-left: 0; border-top: 1px solid var(--line); max-height: 40vh; }
+  #journal.collapsed #calls { display: none; }
+  #jtoggle { display: inline; margin-left: 8px; }
+  #status { margin-left: 0; width: 100%; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Куратор курса</h1>
+  <span id="status">…</span>
+  <nav id="tabs">
+    <button class="tab active" data-tab="help" type="button">Помощь</button>
+    <button class="tab" data-tab="review" type="button">Ревью</button>
+    <button class="tab" data-tab="support" type="button">Тикеты</button>
+    <button class="tab" data-tab="files" type="button">Файлы</button>
+    <button class="tab" data-tab="close" type="button">Закрытие</button>
+  </nav>
+</header>
+<div id="body">
+  <div id="main">
+    <main id="log"></main>
+    <section id="support" hidden>
+      <div id="tickets"><div class="placeholder">тикеты загружаются…</div></div>
+      <div id="ticket" data-status="">
+        <div class="card" hidden>
+          <div class="head"><span class="id"></span><span class="badge status" data-status=""></span></div>
+          <h2 class="subject"></h2>
+          <div class="user"></div>
+          <div class="text"></div>
+          <pre class="attach"></pre>
+          <ul class="events"></ul>
+          <div class="ctx"><h3>Контекст тикета — собран кодом: пользователь, окружение, задание, aitr doctor, последний прогон</h3><pre class="context"></pre></div>
+        </div>
+        <div class="actions" hidden>
+          <button id="ask-btn" class="primary" type="button">Ответить ассистентом</button>
+          <button id="resolve-btn" type="button">Закрыть</button>
+          <input id="escalate-note" type="text" placeholder="уточнение для человека (при передаче)">
+          <button id="escalate-btn" type="button">Передать</button>
+        </div>
+        <div class="reply" hidden></div>
+        <div class="placeholder">Выберите тикет слева</div>
+      </div>
+    </section>
+    <section id="review" hidden>
+      <div id="prs"><div class="placeholder">подставные PR загружаются…</div></div>
+      <div id="review-main">
+        <div id="review-bar">
+          <button id="review-btn" class="primary" type="button" disabled>Ревью</button>
+          <span class="sel">выберите PR слева — подставной из стенда или текущую ветку</span>
+        </div>
+        <div id="panes">
+          <div id="diff"><div class="placeholder">diff появится после ревью: файлы, hunk'и, строки с находками подсвечены</div></div>
+          <div id="result" hidden>
+            <div id="verdict"></div>
+            <div id="planted" hidden></div>
+            <h3>Сводка</h3>
+            <div id="summary"></div>
+            <h3>Находки — файл и строка diff; rule и docs только с дословной цитатой документации</h3>
+            <div id="findings"></div>
+            <div id="review-md"></div>
+            <div id="ci" hidden></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="files" hidden>
+      <div id="goal-bar">
+        <textarea id="goal" placeholder="Цель словами: что сделать с файлами курса… (агент сам решит, какие файлы читать и менять)"></textarea>
+        <button id="plan-btn" class="primary" type="button">План</button>
+      </div>
+      <div id="files-panes">
+        <div id="files-result">
+          <div id="plan"><div class="placeholder">этап plan: агент читает и ищет по файлам, план — файлы, шаги, будут ли правки; инструменты записи появятся после согласия</div></div>
+          <div id="rights"></div>
+          <div id="files-note"></div>
+          <div id="consent" hidden>
+            <input id="reply" type="text" placeholder="реплика: «да, применяй» — согласие; иначе этап остаётся">
+            <button id="approve" class="primary" type="button">Применить</button>
+          </div>
+          <div id="report" hidden></div>
+          <div id="runs"></div>
+        </div>
+      </div>
+    </section>
+    <form id="form">
+      <textarea id="input" placeholder="Вопрос о каталоге курса… (/help необязателен; Enter — отправить, Shift+Enter — новая строка)"></textarea>
+      <button id="send" class="primary" type="submit">Спросить</button>
+    </form>
+  </div>
+  <aside id="journal">
+    <h2>Журнал хода <button id="jtoggle" type="button">свернуть</button><span id="jsum"></span></h2>
+    <div id="calls"></div>
+  </aside>
+</div>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const DAYS = { review: "день 32: ревью PR корня в GitHub Actions", support: "день 33: поддержка пользователей оснастки",
+  files: "день 34: файловый агент на правах этапа", close: "день 35: закрытие задания" };
+let busy = false;
+let turnNo = 0;
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined && text !== null) e.textContent = String(text);
+  return e;
+}
+function short(s, n) {
+  s = (s || "").replace(/\s+/g, " ").trim();
+  return s.length > n ? s.slice(0, n) + "…" : s;
+}
+function scrollDown(node) { node.scrollTop = node.scrollHeight; }
+
+// --- вкладки ---------------------------------------------------------------
+for (const b of document.querySelectorAll("#tabs .tab")) {
+  b.addEventListener("click", () => {
+    for (const x of document.querySelectorAll("#tabs .tab")) x.classList.toggle("active", x === b);
+    const tab = b.dataset.tab;
+    $("form").style.display = tab === "help" ? "" : "none";
+    $("log").style.display = tab === "support" || tab === "review" || tab === "files" ? "none" : "";
+    $("support").hidden = tab !== "support";
+    $("review").hidden = tab !== "review";
+    $("files").hidden = tab !== "files";
+    let ph = $("log").querySelector(".placeholder");
+    if (tab === "help") { if (ph) ph.remove(); return; }
+    if (tab === "support") { if (ph) ph.remove(); loadTickets(); return; }
+    if (tab === "review") { if (ph) ph.remove(); diffTo("review"); loadPRs(); loadCI(); return; }
+    if (tab === "files") { if (ph) ph.remove(); diffTo("files"); loadRuns(); return; }
+    if (!ph) { ph = el("div", "placeholder"); $("log").appendChild(ph); }
+    ph.textContent = DAYS[tab] + " — появится позже";
+  });
+}
+// Вкладка из адреса: /#support открывает «Тикеты», /#support/T-08 — и тикет
+// (ссылки и снимки без кликов).
+function openFromHash() {
+  const [want, id] = location.hash.replace(/^#/, "").split("/");
+  const b = want && document.querySelector(`#tabs .tab[data-tab="${want}"]`);
+  if (b) b.click();
+  if (want === "support" && id) openTicket(id);
+  if (want === "review" && id) pendingPR = id;
+}
+$("jtoggle").addEventListener("click", () => {
+  const j = $("journal");
+  j.classList.toggle("collapsed");
+  $("jtoggle").textContent = j.classList.contains("collapsed") ? "развернуть" : "свернуть";
+});
+
+// --- шапка: состояние индекса ----------------------------------------------
+async function loadState() {
+  try {
+    const r = await fetch("/api/state");
+    const s = await r.json();
+    const idx = s.index || {};
+    const parts = [];
+    if (idx.docs || idx.chunks) {
+      parts.push(`индекс: ${idx.docs} документов, ${idx.chunks} чанков`);
+      if (idx.commit) parts.push("commit " + idx.commit.slice(0, 7));
+      parts.push(s.stale ? "устарел — curator index" : "актуален");
+    } else {
+      parts.push("индекс не собран");
+    }
+    if (s.branch) parts.push("ветка " + s.branch);
+    if (s.model) parts.push("модель " + s.model);
+    if (s.note) parts.push(s.note);
+    $("status").textContent = parts.join(" · ");
+    $("status").classList.toggle("stale", !!s.stale);
+  } catch (e) {
+    $("status").textContent = "сервер не отвечает";
+  }
+}
+
+// --- лента -----------------------------------------------------------------
+function userBubble(text) {
+  const b = el("div", "msg user");
+  b.appendChild(el("div", "text", text));
+  $("log").appendChild(b);
+  scrollDown($("log"));
+  return b;
+}
+function errorBubble(text) {
+  const b = el("div", "msg error");
+  b.appendChild(el("div", "text", text));
+  $("log").appendChild(b);
+  scrollDown($("log"));
+}
+function pendingBubble() {
+  const b = el("div", "msg assistant pending");
+  b.appendChild(el("div", "text", "думаю…"));
+  $("log").appendChild(b);
+  scrollDown($("log"));
+  return b;
+}
+
+// Ответ: текст, источники «Документ › Раздел» с раскрываемой цитатой,
+// факты о состоянии с call_id, пометки «не знаю»/«не проверено», счётчики.
+function answerBubble(node, v) {
+  node.classList.remove("pending");
+  node.replaceChildren();
+  const a = v.answer || {};
+  const unknown = (a.status || "").toLowerCase() === "unknown";
+  const head = el("div", "head");
+  if (unknown) head.appendChild(el("span", "badge unknown", "не знаю"));
+  if (v.unverified) head.appendChild(el("span", "badge unverified", "не проверено"));
+  if (!unknown && !v.unverified) head.appendChild(el("span", "badge ok", a.sources && a.sources.length ? "проверено: цитаты дословны" : "проверено"));
+  node.appendChild(head);
+  node.appendChild(el("div", "text", a.answer || "(пустой ответ)"));
+  if (unknown && a.clarify) node.appendChild(el("div", "clarify", "Уточните: " + a.clarify));
+  if (v.sources && v.sources.length) {
+    const ol = el("ol");
+    for (const s of v.sources) {
+      const li = el("li");
+      li.appendChild(el("code", "chunk", s.chunk_id));
+      li.appendChild(document.createTextNode(" " + (s.title || s.doc_id || "") + (s.path ? " › " + s.path : "")));
+      if (s.quotes && s.quotes.length) {
+        const d = el("details");
+        d.appendChild(el("summary", "", s.quotes.length === 1 ? "цитата" : `цитаты: ${s.quotes.length}`));
+        for (const q of s.quotes) d.appendChild(el("blockquote", "", "«" + q + "»"));
+        li.appendChild(d);
+      }
+      ol.appendChild(li);
+    }
+    node.appendChild(ol);
+  }
+  if (a.state_facts && a.state_facts.length) {
+    const ul = el("ul", "facts");
+    ul.appendChild(el("li", "", "Факты о состоянии (из инструментов):"));
+    for (const f of a.state_facts) {
+      const li = el("li");
+      li.appendChild(document.createTextNode("• " + f.fact + " "));
+      // Имя инструмента — из журнала по call_id: «git_branch · call_00_…».
+      const c = calls.get(f.call_id);
+      const tool = c && c.dataset.tool ? c.dataset.tool + " · " : "";
+      li.appendChild(el("code", "", tool + f.call_id));
+      ul.appendChild(li);
+    }
+    node.appendChild(ul);
+  }
+  const problems = [].concat((v.check && v.check.problems) || [], v.state_problems || []);
+  if (v.unverified && problems.length) node.appendChild(el("div", "problems", "Не проверено: " + problems.join("; ")));
+  const st = v.stats || {};
+  const u = st.usage || {};
+  const cost = st.cost && st.cost.known ? ` · $${st.cost.usd.toFixed(4)}` : "";
+  node.appendChild(el("div", "meta", `${(v.seconds || 0).toFixed(1)} с · запросов ${st.steps || 0} · вызовов ${st.toolCalls || 0} · токенов ${u.total || 0}${cost}` +
+    (st.rejected ? ` · отказов проверки ${st.rejected}` : "") + (v.error ? ` · ошибка: ${v.error}` : "")));
+  scrollDown($("log"));
+}
+
+// --- журнал ----------------------------------------------------------------
+const calls = new Map(); // callId → узел .call
+let steps = 0;
+function journalTurn(text) {
+  turnNo++;
+  calls.clear();
+  steps = 0;
+  const t = el("div", "turn", `ход ${turnNo}: ${short(text, 60)}`);
+  $("calls").appendChild(t);
+  $("jsum").textContent = "";
+}
+function journal(e) {
+  const box = $("calls");
+  switch (e.kind) {
+    case "tool.call": {
+      const c = el("div", "call");
+      c.dataset.tool = e.tool || "";
+      c.dataset.status = "pending";
+      c.dataset.callId = e.callId || "";
+      const head = el("div", "head");
+      head.appendChild(el("span", "tool", e.tool));
+      if (e.final) head.appendChild(el("span", "by", "завершение"));
+      else if ((e.title || "").includes("кодом")) head.appendChild(el("span", "by", "кодом до запроса"));
+      head.appendChild(el("span", "secs", ""));
+      c.appendChild(head);
+      c.appendChild(el("div", "args", short(e.detail, 160)));
+      box.appendChild(c);
+      if (e.callId) calls.set(e.callId, c);
+      break;
+    }
+    case "tool.result": {
+      const c = calls.get(e.callId);
+      if (!c) break;
+      c.dataset.status = "ok";
+      c.querySelector(".secs").textContent = e.seconds ? e.seconds.toFixed(2) + " с" : "";
+      if (!e.final) c.appendChild(el("div", "result", short(e.title, 80)));
+      else c.appendChild(el("div", "result", "принят"));
+      break;
+    }
+    case "tool.error": {
+      const c = calls.get(e.callId);
+      if (!c) { box.appendChild(el("div", "step", `${e.tool}: ${short(e.detail, 200)}`)); break; }
+      c.dataset.status = e.rejected ? "rejected" : "error";
+      c.querySelector(".secs").textContent = e.seconds ? e.seconds.toFixed(2) + " с" : "";
+      c.appendChild(el("div", "why", (e.rejected ? "отказ: " : "ошибка: ") + short(e.detail, 600)));
+      break;
+    }
+    case "llm.request":
+      steps++;
+      box.appendChild(el("div", "step", `запрос к модели ${steps}` + (e.tokens ? ` · ≈${e.tokens.estimated} токенов` : "")));
+      break;
+    case "llm.response":
+      box.appendChild(el("div", "step", `← ${short(e.title, 80)}` + (e.seconds ? ` · ${e.seconds.toFixed(1)} с` : "") +
+        (e.usage ? ` · ${e.usage.total} токенов` : "")));
+      break;
+    case "mechanism":
+      box.appendChild(el("div", "step mech", short(e.title, 200)));
+      break;
+    case "note":
+    case "source.injection":
+      box.appendChild(el("div", "step", short(e.title, 200)));
+      break;
+    default:
+      return;
+  }
+  $("jsum").textContent = `запросов ${steps} · вызовов ${calls.size}`;
+  scrollDown(box);
+}
+
+// --- поток SSE: POST url → события journal / answer / error -----------------
+// Возвращает ответ (event: answer или одно из names — у вкладки «Файлы» это
+// plan и report); бросает ошибку, если ответа не было.
+async function stream(url, body, names) {
+  const want = new Set(["answer"].concat(names || []));
+  const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) });
+  if (!r.ok) {
+    let msg = `ошибка ${r.status}`;
+    try { const j = await r.json(); if (j.error) msg = j.error; } catch (x) {}
+    throw new Error(msg);
+  }
+  const reader = r.body.getReader();
+  const dec = new TextDecoder();
+  let buf = "", answer = null;
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    let i;
+    while ((i = buf.indexOf("\n\n")) >= 0) {
+      const block = buf.slice(0, i);
+      buf = buf.slice(i + 2);
+      let name = "", data = "";
+      for (const line of block.split("\n")) {
+        if (line.startsWith("event: ")) name = line.slice(7);
+        else if (line.startsWith("data: ")) data += line.slice(6);
+      }
+      if (!name) continue;
+      let v;
+      try { v = JSON.parse(data); } catch (x) { continue; }
+      if (name === "journal") journal(v);
+      else if (want.has(name)) answer = v;
+      else if (name === "error") throw new Error(v.error || "ход не удался");
+    }
+  }
+  if (!answer) throw new Error("ответ не пришёл");
+  return answer;
+}
+
+// --- отправка: POST /api/ask ------------------------------------------------
+async function ask(text) {
+  busy = true;
+  $("send").disabled = true;
+  userBubble(text);
+  journalTurn(text);
+  const node = pendingBubble();
+  try {
+    const v = await stream("/api/ask", { text });
+    answerBubble(node, v);
+  } catch (err) {
+    node.remove();
+    errorBubble(err.message || "нет связи с сервером");
+  } finally {
+    busy = false;
+    $("send").disabled = false;
+    $("input").focus();
+    loadState();
+  }
+}
+
+$("form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const text = $("input").value.trim();
+  if (!text || busy) return;
+  $("input").value = "";
+  ask(text);
+});
+$("input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("form").requestSubmit(); }
+});
+
+// --- вкладка «Тикеты» -------------------------------------------------------
+// Список из CRM, карточка тикета с блоком контекста, ответ ассистента по
+// SSE в тот же журнал, кнопки «Закрыть»/«Передать»: действие подтверждает
+// человек, статус пишет код сервера.
+const STATUS = { open: "открыт", resolved: "закрыт", escalated: "передан" };
+const ROLES = { author: "автор курса", peer: "однокурсник", agent: "агент Claude Code" };
+const ACTIONS = { reply: "ответить", resolve: "закрыть", escalate: "передать человеку" };
+let current = null;   // открытый тикет: {ticket, user, context}
+let lastReply = null; // последний ответ ассистента по нему
+
+async function fetchJSON(url, body) {
+  const r = body === undefined ? await fetch(url) : await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!r.ok) {
+    let msg = `ошибка ${r.status}`;
+    try { const j = await r.json(); if (j.error) msg = j.error; } catch (x) {}
+    throw new Error(msg);
+  }
+  return r.json();
+}
+
+function userLine(u, t) {
+  const parts = [];
+  if (u) {
+    parts.push(u.name || u.id);
+    if (u.role) parts.push(ROLES[u.role] || u.role);
+    if (u.os) parts.push(u.os + (u.shell ? ", " + u.shell : ""));
+  } else if (t) parts.push(t.user);
+  if (t && t.num) parts.push("задание " + t.num + (t.stack ? " (" + t.stack + ")" : ""));
+  return parts.join(" · ");
+}
+
+async function loadTickets() {
+  const box = $("tickets");
+  try {
+    const rows = await fetchJSON("/api/support/tickets");
+    box.replaceChildren();
+    if (!rows.length) { box.appendChild(el("div", "placeholder", "тикетов нет")); return; }
+    for (const t of rows) {
+      const d = el("div", "ticket");
+      d.dataset.id = t.id;
+      d.dataset.status = t.status;
+      if (current && current.ticket.id === t.id) d.classList.add("selected");
+      const row = el("div", "row");
+      row.appendChild(el("span", "id", t.id));
+      if (t.num) row.appendChild(el("span", "num", "задание " + t.num));
+      const st = el("span", "badge status", STATUS[t.status] || t.status);
+      st.dataset.status = t.status;
+      row.appendChild(st);
+      d.appendChild(row);
+      d.appendChild(el("div", "subject", t.subject));
+      d.appendChild(el("div", "user", t.user_name || t.user));
+      d.addEventListener("click", () => { if (!busy) openTicket(t.id); });
+      box.appendChild(d);
+    }
+  } catch (err) {
+    box.replaceChildren(el("div", "placeholder", "CRM: " + (err.message || "нет связи")));
+  }
+}
+
+function selectRow(id, status) {
+  for (const d of document.querySelectorAll("#tickets .ticket")) {
+    d.classList.toggle("selected", d.dataset.id === id);
+    if (d.dataset.id === id && status) {
+      d.dataset.status = status;
+      const b = d.querySelector(".badge.status");
+      if (b) { b.dataset.status = status; b.textContent = STATUS[status] || status; }
+    }
+  }
+}
+
+function setButtons(on) {
+  for (const id of ["ask-btn", "resolve-btn", "escalate-btn"]) $(id).disabled = !on;
+}
+
+// Карточка тикета: тикет, пользователь, приложенный вывод, история, блок
+// контекста (как его видит модель). keepReply — оставить ответ ассистента
+// и контекст с прошлой загрузки (после кнопок и после хода).
+function renderTicket(v, keepReply) {
+  current = v;
+  const t = v.ticket;
+  const p = $("ticket");
+  p.dataset.status = t.status;
+  const card = p.querySelector(".card");
+  card.hidden = false;
+  p.querySelector(".actions").hidden = false;
+  const ph = p.querySelector(".placeholder");
+  if (ph) ph.hidden = true;
+  card.querySelector(".id").textContent = t.id;
+  const st = card.querySelector(".badge.status");
+  st.dataset.status = t.status;
+  st.textContent = STATUS[t.status] || t.status;
+  card.querySelector(".subject").textContent = t.subject;
+  card.querySelector(".user").textContent = userLine(v.user, t);
+  card.querySelector(".text").textContent = t.text;
+  card.querySelector(".attach").textContent = t.attach || "";
+  const ev = card.querySelector(".events");
+  ev.replaceChildren();
+  for (const e of t.events || []) {
+    const when = e.at ? new Date(e.at).toLocaleString("ru-RU") : "";
+    ev.appendChild(el("li", "", `${when} · ${e.kind}: ${short(e.text, 200)}`));
+  }
+  const ctx = card.querySelector(".context");
+  if (v.context) ctx.textContent = v.context;
+  else if (!keepReply || !ctx.textContent) ctx.textContent = v.note || "(контекст не собран)";
+  if (!keepReply) {
+    lastReply = null;
+    $("escalate-note").value = "";
+    const rep = p.querySelector(".reply");
+    rep.hidden = true;
+    rep.replaceChildren();
+    rep.classList.remove("pending");
+  }
+  selectRow(t.id, t.status);
+  setButtons(!busy);
+}
+
+async function openTicket(id) {
+  const ctx = $("ticket").querySelector(".context");
+  selectRow(id);
+  if (!current || current.ticket.id !== id) ctx.textContent = "контекст собирается (aitr doctor)…";
+  try {
+    renderTicket(await fetchJSON("/api/support/tickets/" + encodeURIComponent(id)), false);
+  } catch (err) {
+    ctx.textContent = "тикет не загружен: " + (err.message || "нет связи");
+  }
+}
+
+// Ответ ассистента: действие (ответить / закрыть / передать), проверка
+// цитат кодом, текст, источники с дословными цитатами, заметка в тикет,
+// счётчики хода.
+function renderReply(node, v) {
+  node.hidden = false;
+  node.classList.remove("pending");
+  node.replaceChildren();
+  const a = v.reply || {};
+  const action = v.action || a.action || "reply";
+  const unknown = (a.status || "").toLowerCase() === "unknown";
+  const head = el("div", "head");
+  const ab = el("span", "badge action", ACTIONS[action] || action);
+  ab.dataset.action = action;
+  head.appendChild(ab);
+  if (unknown) head.appendChild(el("span", "badge unknown", "вне документации"));
+  if (v.unverified) head.appendChild(el("span", "badge unverified", "не проверено"));
+  if (!unknown && !v.unverified) head.appendChild(el("span", "badge ok", a.sources && a.sources.length ? "проверено: цитаты дословны" : "проверено"));
+  node.appendChild(head);
+  node.appendChild(el("div", "text", a.answer || (action === "escalate" ? "Вопрос вне документации оснастки — передаю человеку." : "(пустой ответ)")));
+  if (a.clarify) node.appendChild(el("div", "clarify", "Уточните: " + a.clarify));
+  if (v.sources && v.sources.length) {
+    const ol = el("ol");
+    for (const s of v.sources) {
+      const li = el("li");
+      li.appendChild(el("code", "chunk", s.chunk_id));
+      li.appendChild(document.createTextNode(" " + (s.title || s.doc_id || "") + (s.path ? " › " + s.path : "")));
+      if (s.quotes && s.quotes.length) {
+        const d = el("details");
+        d.appendChild(el("summary", "", s.quotes.length === 1 ? "цитата" : `цитаты: ${s.quotes.length}`));
+        for (const q of s.quotes) d.appendChild(el("blockquote", "", "«" + q + "»"));
+        li.appendChild(d);
+      }
+      ol.appendChild(li);
+    }
+    node.appendChild(ol);
+  }
+  if (a.note) node.appendChild(el("div", "note", "Заметка в тикет: " + a.note));
+  if (v.applied) node.appendChild(el("div", "note applied", "Код уже записал в тикет: " + v.applied));
+  const problems = (v.check && v.check.problems) || [];
+  if (v.unverified && problems.length) node.appendChild(el("div", "problems", "Не проверено: " + problems.join("; ")));
+  const st = v.stats || {};
+  const u = st.usage || {};
+  const cost = st.cost && st.cost.known ? ` · $${st.cost.usd.toFixed(4)}` : "";
+  node.appendChild(el("div", "meta", `${(v.seconds || 0).toFixed(1)} с · запросов ${st.steps || 0} · вызовов ${st.toolCalls || 0} · токенов ${u.total || 0}${cost}` +
+    (st.rejected ? ` · отказов проверки ${st.rejected}` : "") + (v.error ? ` · ошибка: ${v.error}` : "")));
+  if (action === "escalate" && a.clarify && !$("escalate-note").value) $("escalate-note").value = a.clarify;
+}
+
+async function askTicket() {
+  if (!current || busy) return;
+  const t = current.ticket;
+  busy = true;
+  setButtons(false);
+  journalTurn(t.id + " " + t.subject);
+  const node = $("ticket").querySelector(".reply");
+  node.hidden = false;
+  node.classList.add("pending");
+  node.replaceChildren(el("div", "text", "ассистент читает тикет, контекст и документацию…"));
+  try {
+    const v = await stream("/api/support/tickets/" + encodeURIComponent(t.id) + "/ask", {});
+    lastReply = v;
+    if (v.ticket && v.ticket.id === t.id) renderTicket({ ticket: v.ticket, user: current.user, context: v.context || current.context }, true);
+    renderReply(node, v);
+  } catch (err) {
+    node.classList.remove("pending");
+    node.replaceChildren(el("div", "text", "ошибка: " + (err.message || "нет связи с сервером")));
+  } finally {
+    busy = false;
+    setButtons(true);
+    loadTickets();
+  }
+}
+
+// «Закрыть» / «Передать»: текст события — ответ ассистента или уточнение
+// из поля; заметка финишёра — отдельным событием note.
+async function setStatus(kind) {
+  if (!current || busy) return;
+  const t = current.ticket;
+  const a = lastReply && lastReply.reply ? lastReply.reply : {};
+  const body = kind === "resolve"
+    ? { text: a.answer || "", note: a.note || "" }
+    : { text: $("escalate-note").value.trim() || a.clarify || "", note: "" };
+  busy = true;
+  setButtons(false);
+  try {
+    const v = await fetchJSON("/api/support/tickets/" + encodeURIComponent(t.id) + "/" + kind, body);
+    busy = false;
+    renderTicket({ ticket: v.ticket, user: v.user || current.user, context: current.context }, true);
+    $("calls").appendChild(el("div", "step mech", `${t.id}: статус «${STATUS[v.ticket.status] || v.ticket.status}» — подтверждено человеком, записано кодом`));
+    scrollDown($("calls"));
+  } catch (err) {
+    $("calls").appendChild(el("div", "step", `${t.id}: ${err.message || "нет связи"}`));
+  } finally {
+    busy = false;
+    setButtons(true);
+    loadTickets();
+  }
+}
+
+$("ask-btn").addEventListener("click", askTicket);
+$("resolve-btn").addEventListener("click", () => setStatus("resolve"));
+$("escalate-btn").addEventListener("click", () => setStatus("escalate"));
+
+// --- вкладка «Ревью» --------------------------------------------------------
+// Список подставных PR стенда плюс «текущая ветка», ревью по SSE в тот же
+// журнал; слева diff по файлам и hunk'ам (строки с находками подсвечены),
+// справа вердикт, итог по посаженной ошибке, сводка, находки с основанием
+// (цитата документации или строка файла), панель последнего прогона Action.
+const KINDS = { bug: "баг", rule: "правило", docs: "документация", recommendation: "рекомендация", clean: "чистый" };
+const SEVERITY = { major: "существенно", minor: "мелочь" };
+const VERDICTS = { ok: "замечаний нет", changes: "нужны правки" };
+let currentPR = null;  // выбранный PR: {id, title, kind, clean, file, line, range}
+let pendingPR = null;  // id из адреса /#review/P4 — выбрать после загрузки списка
+
+async function loadPRs() {
+  const box = $("prs");
+  try {
+    const rows = await fetchJSON("/api/review/planted");
+    box.replaceChildren();
+    if (!rows.length) { box.appendChild(el("div", "placeholder", "PR нет")); return; }
+    for (const p of rows) {
+      const d = el("div", "pr");
+      d.dataset.id = p.id;
+      d.dataset.clean = p.clean ? "true" : "false";
+      if (currentPR && currentPR.id === p.id) d.classList.add("selected");
+      const row = el("div", "row");
+      row.appendChild(el("span", "id", p.range ? "ветка" : p.id));
+      if (p.file) row.appendChild(el("span", "file", short(p.file, 40) + (p.line ? ":" + p.line : "")));
+      const kind = p.clean ? "clean" : (p.kind || (p.range ? "" : "?"));
+      if (kind) { const kb = el("span", "badge kind", KINDS[kind] || kind); kb.dataset.kind = kind; row.appendChild(kb); }
+      d.appendChild(row);
+      d.appendChild(el("div", "title", p.title + (p.range ? " · " + p.range : "")));
+      if (p.note) d.appendChild(el("div", "note", p.note));
+      d.addEventListener("click", () => { if (!busy) selectPR(p); });
+      box.appendChild(d);
+    }
+    if (pendingPR) { const want = rows.find((p) => p.id === pendingPR); pendingPR = null; if (want) selectPR(want); }
+  } catch (err) {
+    box.replaceChildren(el("div", "placeholder", "подставные PR: " + (err.message || "нет связи")));
+  }
+}
+
+function selectPR(p) {
+  currentPR = p;
+  for (const d of document.querySelectorAll("#prs .pr")) d.classList.toggle("selected", d.dataset.id === p.id);
+  $("review-btn").disabled = busy;
+  const what = p.range ? `текущая ветка · git diff ${p.range}` : `${p.id} · ${p.title}` + (p.clean ? " · чистый PR" : p.file ? ` · посажено: ${p.file}:${p.line} (${KINDS[p.kind] || p.kind})` : "");
+  $("review-bar").querySelector(".sel").textContent = what;
+  clearReview("нажмите «Ревью»");
+}
+
+// Очистить результат прошлого ревью: вердикт пустой, чтобы ожидание
+// сценария не сработало на старом.
+function clearReview(note) {
+  $("verdict").replaceChildren(note ? el("span", "badge pending", note) : "");
+  $("planted").replaceChildren(); $("planted").hidden = true;
+  $("summary").textContent = "";
+  $("findings").replaceChildren();
+  $("review-md").replaceChildren();
+  $("result").hidden = !note;
+  renderDiff(null, null, "review", "diff появится после ревью: файлы, hunk'и, строки с находками подсвечены");
+  for (const m of $("result").querySelectorAll(".meta")) m.remove();
+}
+
+// Узел #diff один на вкладки «Ревью» и «Файлы»: переезжает в панели
+// активной вкладки и рисуется из её последнего diff.
+const lastDiff = { review: { note: "diff появится после ревью: файлы, hunk'и, строки с находками подсвечены" },
+  files: { note: "diff появится после применения: файлы плана, hunk'и, строки правок в worktree" } };
+let diffOwner = "review";
+function diffTo(owner) {
+  if (owner === diffOwner && $("diff").parentNode) return;
+  diffOwner = owner;
+  const pane = owner === "files" ? $("files-panes") : $("panes");
+  pane.insertBefore($("diff"), pane.firstChild);
+  const d = lastDiff[owner];
+  renderDiff(d.input, d.findings, owner, d.note);
+}
+
+// Diff слева: файл → hunk'и → строки с номерами старой и новой нумерации;
+// data-no — номер строки, по которому находка указывает на неё. owner —
+// чья вкладка (review по умолчанию): diff запоминается за ней и рисуется,
+// только если узел сейчас у неё; note — подпись, когда файлов нет.
+function renderDiff(input, findings, owner, note) {
+  owner = owner || "review";
+  lastDiff[owner] = { input, findings, note: note || lastDiff[owner].note };
+  if (owner !== diffOwner) return;
+  const box = $("diff");
+  box.replaceChildren();
+  const flagged = new Set((findings || []).map((f) => f.file + ":" + f.line));
+  const files = (input && input.files) || [];
+  if (!files.length) { box.appendChild(el("div", "placeholder", input ? "diff пуст" + (input.truncated ? " (обрезан)" : "") : lastDiff[owner].note)); return; }
+  if (input.title) box.appendChild(el("div", "placeholder", input.title + (input.range ? " · " + input.range : "") + (input.truncated ? " · diff обрезан" : "")));
+  for (const f of files) {
+    const fd = el("div", "file");
+    fd.dataset.path = f.path;
+    const head = el("div", "fhead");
+    head.appendChild(el("span", "path", f.old_path ? f.old_path + " → " + f.path : f.path));
+    head.appendChild(el("span", "status", f.status + (f.binary ? ", бинарный" : "")));
+    head.appendChild(el("span", "plus", "+" + (f.added || 0)));
+    head.appendChild(el("span", "minus", "−" + (f.removed || 0)));
+    fd.appendChild(head);
+    for (const h of f.hunks || []) {
+      const hd = el("div", "hunk");
+      hd.appendChild(el("div", "hhead", h.header || `@@ -${h.old_start},${h.old_lines} +${h.new_start},${h.new_lines} @@`));
+      for (const l of h.lines || []) {
+        const ld = el("div", "line");
+        ld.dataset.kind = l.kind;
+        ld.dataset.no = l.kind === "del" ? "" : String(l.new || "");
+        if (l.kind !== "del" && flagged.has(f.path + ":" + l.new)) ld.classList.add("flagged");
+        ld.appendChild(el("span", "no old", l.old || ""));
+        ld.appendChild(el("span", "no new", l.new || ""));
+        ld.appendChild(el("span", "txt", (l.kind === "add" ? "+" : l.kind === "del" ? "−" : " ") + l.text));
+        hd.appendChild(ld);
+      }
+      fd.appendChild(hd);
+    }
+    box.appendChild(fd);
+  }
+}
+
+function scrollToLine(file, line) {
+  const node = document.querySelector(`#diff .file[data-path="${CSS.escape(file)}"] .line[data-no="${line}"]`);
+  if (node) node.scrollIntoView({ block: "center", behavior: "smooth" });
+}
+
+// Результат справа: вердикт, «посаженное найдено», сводка, находки с
+// основанием, текст ревью как уйдёт в PR, счётчики.
+function renderReview(v) {
+  const res = $("result");
+  res.hidden = false;
+  for (const m of res.querySelectorAll(".meta")) m.remove();
+  const verdict = v.verdict || (v.findings && v.findings.length ? "changes" : "ok");
+  const vb = el("span", "badge", VERDICTS[verdict] || verdict);
+  vb.dataset.verdict = verdict;
+  const vh = $("verdict");
+  vh.replaceChildren(vb);
+  if (v.unverified) vh.appendChild(el("span", "badge unverified", "не проверено"));
+  else if (v.check && v.check.has_quotes) vh.appendChild(el("span", "badge ok", "проверено: цитаты дословны, строки в diff"));
+  else vh.appendChild(el("span", "badge ok", "проверено: строки в diff"));
+  const pl = $("planted");
+  pl.replaceChildren();
+  pl.hidden = !v.planted;
+  if (v.planted) {
+    const p = v.planted;
+    let b;
+    if (p.clean) b = el("span", "badge " + (p.found ? "found" : "missed"), p.found ? "чистый PR: ложных находок нет" : `чистый PR: ложных находок ${(v.findings || []).length}`);
+    else if (p.found) b = el("span", "badge found", `посаженное найдено: строка ${p.finding ? p.finding.line : p.line}` + (p.finding && p.finding.line !== p.line ? ` (посажено на ${p.line})` : ""));
+    else b = el("span", "badge missed", `посаженное не найдено: ожидалось ${p.file}:${p.line} (${KINDS[p.kind] || p.kind})`);
+    pl.appendChild(b);
+  }
+  $("summary").textContent = v.summary || "";
+  const fb = $("findings");
+  fb.replaceChildren();
+  if (!(v.findings || []).length) fb.appendChild(el("div", "placeholder", "находок нет"));
+  for (const f of v.findings || []) {
+    const d = el("div", "finding");
+    d.dataset.kind = f.kind; d.dataset.severity = f.severity; d.dataset.file = f.file; d.dataset.line = String(f.line);
+    const head = el("div", "head");
+    const kb = el("span", "badge kind", KINDS[f.kind] || f.kind); kb.dataset.kind = f.kind; kb.style.marginLeft = "0";
+    head.appendChild(kb);
+    const sb = el("span", "badge severity", SEVERITY[f.severity] || f.severity); sb.dataset.severity = f.severity;
+    head.appendChild(sb);
+    const where = el("span", "where", `${f.file}:${f.line}`);
+    where.addEventListener("click", () => scrollToLine(f.file, f.line));
+    head.appendChild(where);
+    d.appendChild(head);
+    d.appendChild(el("div", "text", f.text));
+    const ev = f.evidence || {};
+    if (ev.chunk_id || ev.quote || ev.path) {
+      const e = el("div", "evidence");
+      if (ev.chunk_id) {
+        e.appendChild(document.createTextNode("основание: "));
+        e.appendChild(el("code", "chunk", ev.chunk_id));
+        if (ev.title) e.appendChild(document.createTextNode(" " + ev.title + (ev.section ? " › " + ev.section : "")));
+      } else if (ev.path) {
+        e.appendChild(document.createTextNode("основание: "));
+        e.appendChild(el("code", "chunk", ev.path + (ev.line ? ":" + ev.line : "")));
+      }
+      if (ev.quote) e.appendChild(el("blockquote", "", "«" + ev.quote + "»"));
+      d.appendChild(e);
+    }
+    fb.appendChild(d);
+  }
+  const md = $("review-md");
+  md.replaceChildren();
+  if (v.markdown) {
+    const det = el("details");
+    det.appendChild(el("summary", "", "текст ревью — как уйдёт в PR"));
+    det.appendChild(el("pre", "", v.markdown));
+    md.appendChild(det);
+  }
+  const st = v.stats || {};
+  const u = st.usage || {};
+  const cost = st.cost && st.cost.known ? ` · $${st.cost.usd.toFixed(4)}` : "";
+  res.appendChild(el("div", "meta", `${(v.seconds || 0).toFixed(1)} с · запросов ${st.steps || 0} · вызовов ${st.toolCalls || 0} · токенов ${u.total || 0}${cost}` +
+    (st.rejected ? ` · отказов проверки ${st.rejected}` : "") + (v.error ? ` · ошибка: ${v.error}` : "")));
+}
+
+async function runReview() {
+  if (!currentPR || busy) return;
+  const p = currentPR;
+  busy = true;
+  $("review-btn").disabled = true;
+  journalTurn("ревью " + (p.range ? p.range : p.id + " " + p.title));
+  clearReview("ревью идёт: diff, docs_search кодом, read_file затронутых файлов…");
+  try {
+    const v = await stream("/api/review/run", p.range ? { range: p.range } : { planted: p.id });
+    renderDiff(v.input, v.findings);
+    renderReview(v);
+  } catch (err) {
+    $("verdict").replaceChildren(el("span", "badge unverified", "ошибка: " + (err.message || "нет связи с сервером")));
+  } finally {
+    busy = false;
+    $("review-btn").disabled = false;
+    loadState();
+  }
+}
+
+// Панель «последний прогон Action»: examples/review/ci-*.json; нет — скрыта.
+async function loadCI() {
+  const box = $("ci");
+  try {
+    const r = await fetch("/api/review/ci");
+    if (!r.ok) { box.hidden = true; return; }
+    const c = await r.json();
+    box.replaceChildren();
+    box.appendChild(el("h3", "", "Последний прогон Action (GitHub)"));
+    const line = el("div");
+    line.appendChild(el("span", "pr", c.number ? `PR #${c.number}` : c.file));
+    if (c.title) line.appendChild(document.createTextNode(" · " + c.title));
+    if (c.verdict) { const vs = el("span", "verdict", " · " + (VERDICTS[c.verdict] || c.verdict)); vs.dataset.verdict = c.verdict; line.appendChild(vs); }
+    if (c.findings) line.appendChild(document.createTextNode(` · находок ${c.findings}`));
+    if (c.at) { const d = new Date(c.at); line.appendChild(document.createTextNode(" · " + (isNaN(d) ? c.at : d.toLocaleString("ru-RU")))); }
+    box.appendChild(line);
+    if (c.url) { const a = el("a", "", c.url); a.href = c.url; a.target = "_blank"; a.rel = "noopener"; box.appendChild(a); }
+    box.appendChild(el("div", "note", "журнал gh api сохранён в " + c.file));
+    box.hidden = false;
+    $("result").hidden = false;
+  } catch (e) {
+    box.hidden = true;
+  }
+}
+
+$("review-btn").addEventListener("click", runReview);
+
+// --- вкладка «Файлы» --------------------------------------------------------
+// Цель словами → POST /api/files/plan (SSE в тот же журнал, event: plan):
+// файлы и шаги плана, строка прав — на этапе plan у агента только чтение,
+// инструменты записи появятся после согласия. Реплика «да, применяй» →
+// POST /api/files/approve (event: report): правки в worktree на ветке
+// agent/<run>, изменённые файлы, diff слева, коммит, счётчики; согласия в
+// реплике нет — event: plan с пометкой, этап без изменений.
+const STAGES = { plan: "план", approve: "ждёт согласия", apply: "применение", done: "готово" };
+let currentRun = null; // последний прогон вкладки: FilesView
+
+function stageBadge(stage) {
+  const b = el("span", "badge stage", stageName(stage));
+  b.dataset.stage = stage || "";
+  return b;
+}
+function stageName(stage) { return STAGES[stage] || stage || "?"; }
+
+function clearFiles(note) {
+  currentRun = null;
+  $("plan").replaceChildren(el("div", "placeholder", note));
+  $("rights").replaceChildren();
+  $("files-note").textContent = "";
+  $("consent").hidden = true;
+  $("report").hidden = true;
+  $("report").replaceChildren();
+  renderDiff(null, null, "files");
+}
+
+// Строка прав этапа: чтение — список; запись — «появится после согласия»
+// (строка в ответе) или выданные инструменты (список).
+function renderRights(r, stage) {
+  const box = $("rights");
+  box.replaceChildren();
+  r = r || {};
+  box.appendChild(document.createTextNode("права этапа «" + stageName(stage) + "» · чтение: "));
+  box.appendChild(el("code", "", (r.read || []).join(", ") || "—"));
+  box.appendChild(document.createTextNode(" · "));
+  if (typeof r.write === "string" || !r.write) {
+    box.appendChild(el("span", "write gated", "запись: появится " + (r.write || "после согласия")));
+  } else if (!r.write.length) {
+    box.appendChild(el("span", "write", "запись: нет"));
+  } else {
+    const w = el("span", "write granted", "запись: ");
+    w.appendChild(el("code", "", r.write.join(", ")));
+    w.appendChild(document.createTextNode(" — только файлы плана, в worktree"));
+    box.appendChild(w);
+  }
+}
+
+// План: id прогона и этап, файлы (путь, новый, зачем), шаги, будут ли
+// правки; кнопка «Применить» — пока прогон ждёт согласия.
+function renderPlan(v) {
+  currentRun = v;
+  const box = $("plan");
+  box.replaceChildren();
+  const head = el("div", "head");
+  head.appendChild(stageBadge(v.stage));
+  head.appendChild(el("span", "run", v.run_id || ""));
+  if (v.plan && !v.plan.writes) head.appendChild(el("span", "badge ok", "без правок"));
+  if (v.unverified) head.appendChild(el("span", "badge unverified", "не проверено"));
+  box.appendChild(head);
+  if (v.plan) {
+    box.appendChild(el("h3", "", `Файлы плана — ${(v.plan.files || []).length}` + (v.plan.writes ? ", с правками" : ", только чтение")));
+    const ul = el("ul", "files");
+    for (const f of v.plan.files || []) {
+      const li = el("li", "file");
+      li.dataset.path = f.path;
+      li.dataset.new = f.new ? "true" : "false";
+      li.appendChild(el("span", "path", f.path));
+      if (f.new) li.appendChild(el("span", "new", "новый"));
+      if (f.why) li.appendChild(el("div", "why", f.why));
+      ul.appendChild(li);
+    }
+    box.appendChild(ul);
+    if ((v.plan.steps || []).length) {
+      box.appendChild(el("h3", "", "Шаги"));
+      const ol = el("ol", "steps");
+      for (const s of v.plan.steps) ol.appendChild(el("li", "", s));
+      box.appendChild(ol);
+    }
+  } else {
+    box.appendChild(el("div", "placeholder", "план не принят" + (v.error ? ": " + v.error : "")));
+  }
+  renderRights(v.rights, v.stage);
+  $("files-note").textContent = v.note || (v.error && v.plan ? "ошибка: " + v.error : "");
+  $("consent").hidden = !(v.plan && v.stage === "approve");
+  $("report").hidden = true;
+  $("report").replaceChildren();
+  box.appendChild(statsLine(v));
+}
+
+function statsLine(v) {
+  const st = v.stats || {};
+  const u = st.usage || {};
+  const cost = st.cost && st.cost.known ? ` · $${st.cost.usd.toFixed(4)}` : "";
+  return el("div", "meta", `${(v.seconds || 0).toFixed(1)} с · запросов ${st.steps || 0} · вызовов ${st.toolCalls || 0} · токенов ${u.total || 0}${cost}` +
+    (st.rejected ? ` · отказов проверки ${st.rejected}` : "") + (v.error ? ` · ошибка: ${v.error}` : ""));
+}
+
+// Отчёт после apply: ветка и worktree, коммит, изменённые файлы, счётчики
+// контрольной дорожки, сводка, markdown как уйдёт в карточку; diff — слева.
+function renderReport(v) {
+  currentRun = v;
+  const head = $("plan").querySelector(".head");
+  if (head) head.replaceChild(stageBadge(v.stage), head.firstChild);
+  renderRights(v.rights, v.stage);
+  $("files-note").textContent = v.note || "";
+  $("consent").hidden = true;
+  const box = $("report");
+  box.hidden = false;
+  box.replaceChildren();
+  box.appendChild(el("h3", "", "Результат — правки в worktree, слияние за человеком"));
+  const br = el("div", "branch", "ветка " + (v.branch || "—") + (v.worktree ? " · worktree " + v.worktree : ""));
+  br.dataset.branch = v.branch || "";
+  box.appendChild(br);
+  if (v.commit) box.appendChild(el("div", "commit", "коммит " + v.commit.slice(0, 12) + (v.summary ? " · " + short(v.summary, 120) : "")));
+  box.appendChild(el("h3", "", `Изменённые файлы — ${(v.changed || []).length} (git status в worktree)`));
+  const ul = el("ul", "changed");
+  for (const p of v.changed || []) { const li = el("li", "", p); li.dataset.path = p; ul.appendChild(li); }
+  if (!(v.changed || []).length) ul.appendChild(el("li", "", "ничего не изменено"));
+  box.appendChild(ul);
+  const c = v.counters || {};
+  const cnt = el("div", "counters");
+  const before = el("span", c.writes_before_approve ? "bad" : "good", `записей до согласия: ${c.writes_before_approve || 0}`);
+  const outside = el("span", c.writes_outside_plan ? "bad" : "good", `вне плана: ${c.writes_outside_plan || 0}` + (c.writes_outside_plan ? " (отказано инструментом)" : ""));
+  cnt.appendChild(before); cnt.appendChild(document.createTextNode(" · ")); cnt.appendChild(outside);
+  if (c.rejected) { cnt.appendChild(document.createTextNode(" · ")); cnt.appendChild(el("span", "", `отказов проверки: ${c.rejected}`)); }
+  box.appendChild(cnt);
+  if (v.summary) { box.appendChild(el("h3", "", "Сводка агента")); box.appendChild(el("div", "summary", v.summary)); }
+  if (v.markdown) {
+    const det = el("details");
+    det.appendChild(el("summary", "", "отчёт — как уйдёт в карточку"));
+    det.appendChild(el("pre", "", v.markdown));
+    box.appendChild(det);
+  }
+  box.appendChild(statsLine(v));
+  renderDiff({ title: "ветка " + (v.branch || "") + (v.commit ? " · коммит " + v.commit.slice(0, 7) : ""), files: v.diff || [] }, null, "files");
+}
+
+function mechLine(text) {
+  $("calls").appendChild(el("div", "step mech", text));
+  scrollDown($("calls"));
+}
+
+async function planFiles() {
+  const goal = $("goal").value.trim();
+  if (!goal || busy) { $("goal").focus(); return; }
+  busy = true;
+  $("plan-btn").disabled = true;
+  $("approve").disabled = true;
+  journalTurn("план: " + goal);
+  clearFiles("этап plan: агент читает и ищет по файлам — инструментов записи у него сейчас нет…");
+  try {
+    const v = await stream("/api/files/plan", { goal }, ["plan"]);
+    renderPlan(v);
+    const r = v.rights || {};
+    if (typeof r.write === "string") mechLine(`права этапа: на plan выданы только чтение и поиск (${(r.read || []).length}) — write_file появится ${r.write}`);
+    else mechLine("права этапа выключены: инструменты записи выданы с первого шага, запрет — словами");
+  } catch (err) {
+    $("plan").replaceChildren(el("div", "placeholder", "ошибка: " + (err.message || "нет связи с сервером")));
+  } finally {
+    busy = false;
+    $("plan-btn").disabled = false;
+    $("approve").disabled = false;
+    loadRuns();
+    loadState();
+  }
+}
+
+async function approveFiles() {
+  if (!currentRun || busy) return;
+  const reply = $("reply").value.trim();
+  if (!reply) { $("reply").focus(); return; }
+  const run = currentRun;
+  busy = true;
+  $("plan-btn").disabled = true;
+  $("approve").disabled = true;
+  journalTurn("реплика по " + run.run_id + ": " + reply);
+  $("files-note").textContent = "реплика передана: согласие читает код (consent.Decided), не модель…";
+  $("report").hidden = true;
+  $("report").replaceChildren();
+  try {
+    const v = await stream("/api/files/approve", { run_id: run.run_id, reply }, ["plan", "report"]);
+    if (v.view === "report") {
+      const r = v.rights || {};
+      mechLine(`согласие человека: «${short(reply, 60)}» — выданы ${Array.isArray(r.write) ? r.write.join(", ") : "инструменты записи"}, только файлы плана, worktree ${v.worktree || ""}`);
+      renderReport(v);
+      $("reply").value = "";
+    } else {
+      mechLine(`согласия в реплике нет: «${short(reply, 60)}» — этап «${stageName(v.stage)}» без изменений`);
+      renderPlan(v);
+    }
+  } catch (err) {
+    $("files-note").textContent = "ошибка: " + (err.message || "нет связи с сервером");
+    $("consent").hidden = false;
+  } finally {
+    busy = false;
+    $("plan-btn").disabled = false;
+    $("approve").disabled = false;
+    loadRuns();
+    loadState();
+  }
+}
+
+// Список прогонов сессии: id, этап, цель, ветка, число изменённых файлов.
+async function loadRuns() {
+  const box = $("runs");
+  try {
+    const rows = await fetchJSON("/api/files/runs");
+    box.replaceChildren();
+    if (!rows.length) return;
+    box.appendChild(el("h3", "", `Прогоны сессии — ${rows.length}`));
+    for (const r of rows) {
+      const d = el("div", "run");
+      d.dataset.id = r.run_id;
+      d.dataset.stage = r.stage;
+      d.appendChild(el("span", "id", r.run_id));
+      d.appendChild(stageBadge(r.stage));
+      d.appendChild(el("span", "goal", short(r.goal, 60)));
+      if (r.branch) d.appendChild(el("span", "branch", r.branch + ` · файлов ${r.changed}`));
+      box.appendChild(d);
+    }
+  } catch (err) {
+    box.replaceChildren(el("div", "", "прогоны: " + (err.message || "нет связи")));
+  }
+}
+
+$("plan-btn").addEventListener("click", planFiles);
+$("approve").addEventListener("click", approveFiles);
+$("goal").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); planFiles(); }
+});
+$("reply").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") { e.preventDefault(); approveFiles(); }
+});
+
+loadState();
+setInterval(loadState, 30000);
+openFromHash();
+</script>
+</body>
+</html>

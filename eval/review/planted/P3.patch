@@ -1,0 +1,15 @@
+diff --git a/demos/31-course-help/scenario.json b/demos/31-course-help/scenario.json
+index 7d11886..2e21ab5 100644
+--- a/demos/31-course-help/scenario.json
++++ b/demos/31-course-help/scenario.json
+@@ -253,8 +253,9 @@
+     {
+       "caption": "Код сам вызвал docs_search до первого запроса к модели — видно в журнале справа",
+       "wait": "#journal .call[data-tool=docs_search]",
+-      "timeout": "30s"
++      "timeout": "240s"
+     },
++    { "expectJS": "x = 1; true" },
+     {
+       "caption": "Модель отвечает help_answer; код сверяет chunk_id с выдачей и цитаты с текстом фрагментов",
+       "wait": "#log .msg.assistant:not(.pending) .meta",

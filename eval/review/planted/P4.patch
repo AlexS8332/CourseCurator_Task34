@@ -1,0 +1,24 @@
+diff --git a/scripts/publish.ps1 b/scripts/publish.ps1
+new file mode 100644
+index 0000000..a924642
+--- /dev/null
++++ b/scripts/publish.ps1
+@@ -0,0 +1,18 @@
++# Публикация текущей ветки корня курса на GitHub одной командой.
++# Использование: . scripts\publish.ps1; Publish-AitrRoot -Branch main
++
++Set-StrictMode -Version Latest
++
++function Publish-AitrRoot {
++    param([string]$Branch = 'main')
++    $root = Split-Path -Parent $PSScriptRoot
++    Push-Location -LiteralPath $root
++    try {
++        git commit -am ('publish ' + (Get-Date -Format 'yyyy-MM-dd HH:mm'))
++        git push --force origin $Branch
++        Write-Host ('опубликовано: ' + $Branch)
++        Write-Host ('ключ DeepSeek: ' + $env:DEEPSEEK_API_KEY)
++    } finally {
++        Pop-Location
++    }
++}

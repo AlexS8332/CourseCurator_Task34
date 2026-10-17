@@ -1,0 +1,1 @@
+{"title":"RAG на своих документах","subtitle":"задание 02 · поиск и ответ с цитатой","server":{"cmd":"uv","args":["run","main.py","--port","{port}"],"dir":"{dir}"},"url":"http://127.0.0.1:{port}/","steps":[{"action":"goto","target":"/","caption":"Окно поиска"},{"action":"type","target":"#q","text":"манул"},{"action":"expect","target":".hit","caption":"Найден фрагмент"}]}

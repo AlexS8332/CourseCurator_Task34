@@ -1,0 +1,506 @@
+[
+  {
+    "id": "T-01",
+    "user": "u-author-new",
+    "num": "16",
+    "stack": "go",
+    "subject": "go test -race падает на cgo",
+    "text": "На новой машине go test ./... проходит, а go test -race ./... валится ещё на сборке runtime/cgo. gcc стоит (из msys2). Что не так?",
+    "status": "open",
+    "events": [
+      {
+        "at": "2026-10-14T09:12:00+03:00",
+        "kind": "created",
+        "text": "тикет создан"
+      }
+    ],
+    "attach": "PS D:\\Projects\\AITrenning\\assignments\\16-aitrenning-task16> go test -race ./...\n# runtime/cgo\ngcc_libinit_windows.c:1:0: error: don't use the cygwin compiler to build native Windows programs\nFAIL\tgithub.com/.../mcpserver [build failed]",
+    "expect": {
+      "must": [
+        [
+          "mingw"
+        ],
+        [
+          "PATH"
+        ]
+      ],
+      "sources": [
+        "docs/cards/02-aitrenning-task2.md",
+        "docs/cards/16-aitrenning-task16.md"
+      ],
+      "action": "resolve"
+    },
+    "evidence": [
+      {
+        "doc_id": "docs/cards/02-aitrenning-task2.md",
+        "quote": "`-race` на Windows требует именно mingw-w64."
+      },
+      {
+        "doc_id": "docs/cards/02-aitrenning-task2.md",
+        "quote": "don't use the cygwin compiler to build native Windows programs"
+      },
+      {
+        "doc_id": "docs/cards/16-aitrenning-task16.md",
+        "quote": "`go test -race` требует mingw-w64 в PATH"
+      }
+    ]
+  },
+  {
+    "id": "T-02",
+    "user": "u-agent-31",
+    "num": "31",
+    "stack": "go",
+    "subject": "Многострочное сообщение коммита: heredoc не работает",
+    "text": "Хочу сделать коммит с многострочным сообщением. В Bash heredoc на кириллице ломает файл, а в PowerShell конструкция <<EOF вообще не разбирается. Как правильно?",
+    "status": "open",
+    "events": [
+      {
+        "at": "2026-10-14T10:40:00+03:00",
+        "kind": "created",
+        "text": "тикет создан"
+      }
+    ],
+    "attach": "PS> git commit -m <<EOF\nВ строке:1 знак:15\n+ git commit -m <<EOF\n+               ~~\nОператор \"<\" зарезервирован для использования в будущем.",
+    "expect": {
+      "must": [
+        [
+          "here-string",
+          "файл",
+          "-F"
+        ],
+        [
+          "PowerShell"
+        ]
+      ],
+      "sources": [
+        "docs/cards/30-animal-guide-private-service.md",
+        ".claude/skills/aitr/SKILL.md"
+      ],
+      "action": "resolve"
+    },
+    "evidence": [
+      {
+        "doc_id": "docs/cards/30-animal-guide-private-service.md",
+        "quote": "сообщение коммита через here-string в файл и `git commit -F`"
+      },
+      {
+        "doc_id": "docs/cards/04-aitrenning-task4.md",
+        "quote": "на этой машине ломаются на многострочных файлах с кириллицей — файлы писал напрямую"
+      },
+      {
+        "doc_id": ".claude/skills/aitr/SKILL.md",
+        "quote": "без `&&`, `||`, тернарников и `??`. Команды через `;`, условное выполнение — `A; if ($?) { B }`"
+      }
+    ]
+  },
+  {
+    "id": "T-03",
+    "user": "u-author",
+    "num": "30",
+    "stack": "go",
+    "subject": "Видео не пишется: прогон падает на ошибке консоли при 401",
+    "text": "aitr record 30 доходит до шага «запрос без ключа», шлюз честно отвечает 401, пузырь ошибки на экране есть — а edgerec валит прогон и видео не пишет. Как записать демо, где отказы шлюза и есть содержание?",
+    "status": "open",
+    "events": [
+      {
+        "at": "2026-10-14T11:05:00+03:00",
+        "kind": "created",
+        "text": "тикет создан"
+      }
+    ],
+    "attach": "step 7 click #send: ok\nstep 8 expect .bubble.error: ok\nconsole error: Failed to load resource: the server responded with a status of 401 ()\nпрогон не пройден: ошибка JS страницы (failOnConsoleError)\nexit 1",
+    "expect": {
+      "must": [
+        [
+          "failOnConsoleError"
+        ],
+        [
+          "false",
+          "выключ",
+          "отключ"
+        ]
+      ],
+      "sources": [
+        "docs/cards/30-animal-guide-private-service.md",
+        "tools/edgerec/README.md"
+      ],
+      "action": "resolve"
+    },
+    "evidence": [
+      {
+        "doc_id": "docs/cards/30-animal-guide-private-service.md",
+        "quote": "Edge пишет «Failed to load resource» как ошибку консоли на каждый отказ шлюза — а отказы и есть содержание демо. В сценарии `failOnConsoleError: false`, проверки — по тексту пузырей ошибок."
+      },
+      {
+        "doc_id": "tools/edgerec/README.md",
+        "quote": "`1` — прогон не пройден (проверка, таймаут, ошибка JS при `failOnConsoleError`, битое видео)"
+      }
+    ]
+  },
+  {
+    "id": "T-04",
+    "user": "u-agent-31",
+    "num": "",
+    "stack": "go",
+    "subject": "aitr new -Public отклонён",
+    "text": "Пользователь попросил завести новое задание с публичным репозиторием. Запуск aitr new … -Public отклонён ещё до выполнения: создание публичной поверхности не разрешено. Как заводить задание?",
+    "status": "open",
+    "events": [
+      {
+        "at": "2026-10-14T12:20:00+03:00",
+        "kind": "created",
+        "text": "тикет создан"
+      }
+    ],
+    "attach": "Permission denied: команда создаёт публичный репозиторий на GitHub (aitr new support-tickets -Stack go -Public). Запуск отклонён классификатором разрешений.",
+    "expect": {
+      "must": [
+        [
+          "NoRemote"
+        ],
+        [
+          "разрешен",
+          "согласу"
+        ]
+      ],
+      "sources": [
+        "docs/cards/21-animal-guide-kb-index.md",
+        ".claude/skills/aitr/SKILL.md"
+      ],
+      "action": "resolve"
+    },
+    "evidence": [
+      {
+        "doc_id": "docs/cards/21-animal-guide-kb-index.md",
+        "quote": "классификатор разрешений запретил создание публичной поверхности. Задание заведено с `-NoRemote`, создание репозитория и push — после явного разрешения."
+      },
+      {
+        "doc_id": ".claude/skills/aitr/SKILL.md",
+        "quote": "Если репозиторий не нужен или `gh` не настроен — добавь `-NoRemote`."
+      },
+      {
+        "doc_id": ".claude/skills/aitr/SKILL.md",
+        "quote": "По умолчанию репозиторий приватный; `-Public` делает его публичным."
+      }
+    ]
+  },
+  {
+    "id": "T-05",
+    "user": "u-author",
+    "num": "25",
+    "stack": "go",
+    "subject": "Диск C кончился: тесты падают с build failed",
+    "text": "Во время работы нескольких агентов тесты стали падать «build failed» на случайных пакетах, на C: свободно меньше 100 МБ. Что занимает место и куда это переносить?",
+    "status": "open",
+    "events": [
+      {
+        "at": "2026-10-14T14:02:00+03:00",
+        "kind": "created",
+        "text": "тикет создан"
+      }
+    ],
+    "attach": "go build aitr/25-animal-guide-rag-chat/internal/agent: open C:\\Users\\Alex\\AppData\\Local\\go-build\\7f\\7f3a…-d: There is not enough space on the disk.\nFAIL\taitr/25-animal-guide-rag-chat/internal/agent [build failed]\nPS> Get-PSDrive C | Select Free  →  93 MB",
+    "expect": {
+      "must": [
+        [
+          "кэш",
+          "GOCACHE",
+          "go-build"
+        ],
+        [
+          "D:"
+        ]
+      ],
+      "sources": [
+        "docs/cards/24-animal-guide-rag-cite.md",
+        "docs/cards/25-animal-guide-rag-chat.md"
+      ],
+      "action": "resolve"
+    },
+    "evidence": [
+      {
+        "doc_id": "docs/cards/24-animal-guide-rag-cite.md",
+        "quote": "тесты падали «build failed» на случайных пакетах. Удалил свои временные каталоги проб и кэш сборки Go (+4 ГБ); дальше данные прогонов и TMP — на D:"
+      },
+      {
+        "doc_id": "docs/cards/25-animal-guide-rag-chat.md",
+        "quote": "кэш сборки Go быстро растёт при параллельных агентах. Чистил кэш, свои сборки вёл с `GOCACHE` и `TMP` на D:."
+      }
+    ]
+  },
+  {
+    "id": "T-06",
+    "user": "u-author",
+    "num": "22",
+    "stack": "go",
+    "subject": "edgerec не видит <option> в выпадающем списке",
+    "text": "В сценарии после выбора модели ставлю expect на option внутри select — шаг падает по таймауту «элемент не виден», хотя в браузере значение выбрано. Как проверить выбор в списке?",
+    "status": "open",
+    "events": [
+      {
+        "at": "2026-10-14T15:30:00+03:00",
+        "kind": "created",
+        "text": "тикет создан"
+      }
+    ],
+    "attach": "step 5 expect select#model option[value=rerank]: FAIL — элемент не виден (timeout 5s)\nfail.png: runs/2026-10-14_1528/fail.png",
+    "expect": {
+      "must": [
+        [
+          "expectJS"
+        ]
+      ],
+      "sources": [
+        "docs/cards/22-animal-guide-rag.md",
+        "tools/edgerec/README.md"
+      ],
+      "action": "resolve"
+    },
+    "evidence": [
+      {
+        "doc_id": "docs/cards/22-animal-guide-rag.md",
+        "quote": "`<option>` внутри `<select>` «невидим»"
+      },
+      {
+        "doc_id": "tools/edgerec/README.md",
+        "quote": "JS-выражение истинно (можно `await`)"
+      }
+    ]
+  },
+  {
+    "id": "T-07",
+    "user": "u-author-new",
+    "num": "",
+    "stack": "node",
+    "subject": "Стек node: задание создалось, но не запускается",
+    "text": "Завёл задание на стеке node, aitr doctor ругается, npm install не находит команду. Ставить Node на эту машину или есть другой путь для фронтенда?",
+    "status": "open",
+    "events": [
+      {
+        "at": "2026-10-15T09:45:00+03:00",
+        "kind": "created",
+        "text": "тикет создан"
+      }
+    ],
+    "attach": "aitr doctor 34\nТулчейн\n  FAIL  node не установлен на этой машине\nPS> npm install\nnpm : Имя \"npm\" не распознано как имя командлета, функции, файла сценария или выполняемой программы.",
+    "expect": {
+      "must": [
+        [
+          "не установлен",
+          "нет",
+          "отсутств"
+        ],
+        [
+          "ванильн",
+          "без сборки",
+          "предупред"
+        ]
+      ],
+      "sources": [
+        ".claude/skills/aitr/SKILL.md",
+        "docs/cards/03-aitrenning-task3.md"
+      ],
+      "action": "reply"
+    },
+    "evidence": [
+      {
+        "doc_id": ".claude/skills/aitr/SKILL.md",
+        "quote": "`node`/`npm` — нет, стек `node` создастся, но не запустится; предупреди об этом заранее."
+      },
+      {
+        "doc_id": "docs/cards/03-aitrenning-task3.md",
+        "quote": "Фронтенд написан на ванильном JS без сборки — других вариантов и не было"
+      }
+    ]
+  },
+  {
+    "id": "T-08",
+    "user": "u-agent-31",
+    "num": "31",
+    "stack": "go",
+    "subject": "Почему не работает авторизация?",
+    "text": "Запускаю curator help в задании 31 — модель отвечает 401 Unauthorized. Код не менял, вчера работало. Почему не работает авторизация и что проверить?",
+    "status": "open",
+    "events": [
+      {
+        "at": "2026-10-15T10:10:00+03:00",
+        "kind": "created",
+        "text": "тикет создан"
+      }
+    ],
+    "attach": "PS> .\\curator.exe help \"где карточка задания 31?\"\nошибка модели: HTTP 401 Unauthorized — Authentication Fails (api key missing)",
+    "expect": {
+      "must": [
+        [
+          "DEEPSEEK_API_KEY"
+        ],
+        [
+          ".env"
+        ],
+        [
+          "не задан",
+          "doctor"
+        ]
+      ],
+      "sources": [
+        ".claude/skills/aitr/SKILL.md",
+        "README.md",
+        "docs/cards/01-aitrenning-task1.md"
+      ],
+      "action": "resolve"
+    },
+    "evidence": [
+      {
+        "doc_id": ".claude/skills/aitr/SKILL.md",
+        "quote": "он сообщает «задан / не задан», но никогда не показывает значение"
+      },
+      {
+        "doc_id": ".claude/skills/aitr/SKILL.md",
+        "quote": "Ключи он не восстанавливает — `.env.local` вне git, их придётся завести заново."
+      },
+      {
+        "doc_id": "README.md",
+        "quote": "Заполнить ключи в `.env` (файл уже создан, вне git)."
+      },
+      {
+        "doc_id": "docs/cards/01-aitrenning-task1.md",
+        "quote": "Ключ `DEEPSEEK_API_KEY` положен в корневой `.env` курса как общий для всех заданий"
+      }
+    ]
+  },
+  {
+    "id": "T-09",
+    "user": "u-author",
+    "num": "",
+    "stack": "go",
+    "subject": "Тесты не запускаются",
+    "text": "Тесты не запускаются, что делать?",
+    "status": "open",
+    "events": [
+      {
+        "at": "2026-10-15T11:00:00+03:00",
+        "kind": "created",
+        "text": "тикет создан"
+      }
+    ],
+    "attach": "",
+    "expect": {
+      "must": [
+        [
+          "go test"
+        ]
+      ],
+      "must_not": [
+        "pytest",
+        "uv run",
+        ".venv"
+      ],
+      "sources": [
+        ".claude/skills/aitr/SKILL.md",
+        "README.md"
+      ],
+      "action": "reply"
+    },
+    "evidence": [
+      {
+        "doc_id": ".claude/skills/aitr/SKILL.md",
+        "quote": "задания по стеку (`go vet` + `go test ./...`, `uv run pytest`)"
+      },
+      {
+        "doc_id": "README.md",
+        "quote": "тесты задания (`go vet` + `go test ./...` или `uv run pytest`)"
+      }
+    ]
+  },
+  {
+    "id": "T-10",
+    "user": "u-peer",
+    "num": "",
+    "stack": "python",
+    "subject": "Тесты не запускаются",
+    "text": "Тесты не запускаются, что делать?",
+    "status": "open",
+    "events": [
+      {
+        "at": "2026-10-15T11:02:00+03:00",
+        "kind": "created",
+        "text": "тикет создан"
+      }
+    ],
+    "attach": "",
+    "expect": {
+      "must": [
+        [
+          "pytest"
+        ],
+        [
+          "uv"
+        ]
+      ],
+      "must_not": [
+        "go vet",
+        "go test",
+        "go.mod"
+      ],
+      "sources": [
+        ".claude/skills/aitr/SKILL.md",
+        "README.md"
+      ],
+      "action": "reply"
+    },
+    "evidence": [
+      {
+        "doc_id": ".claude/skills/aitr/SKILL.md",
+        "quote": "Шаблон `python` поднимает `.venv` через `uv`; запуск — `uv run`."
+      },
+      {
+        "doc_id": ".claude/skills/aitr/SKILL.md",
+        "quote": "задания по стеку (`go vet` + `go test ./...`, `uv run pytest`)"
+      },
+      {
+        "doc_id": "README.md",
+        "quote": "для Python это `.venv` внутри задания (через `uv`), для Go — модуль `go.mod`."
+      }
+    ]
+  },
+  {
+    "id": "T-11",
+    "user": "u-peer",
+    "num": "",
+    "stack": "",
+    "subject": "Ingress с TLS в Kubernetes не подхватывает сертификат",
+    "text": "Настраиваю Ingress с TLS для своего сервиса в Kubernetes, сертификат из секрета не подхватывается, браузер ругается на самоподписанный. Как правильно описать Ingress и секрет с сертификатом?",
+    "status": "open",
+    "events": [
+      {
+        "at": "2026-10-15T12:15:00+03:00",
+        "kind": "created",
+        "text": "тикет создан"
+      }
+    ],
+    "attach": "",
+    "expect": {
+      "action": "escalate"
+    }
+  },
+  {
+    "id": "T-12",
+    "user": "u-peer",
+    "num": "",
+    "stack": "",
+    "subject": "Когда объявят оценки за курс?",
+    "text": "Когда объявят итоговые оценки за курс и где их смотреть? Влияет ли на оценку число сданных заданий?",
+    "status": "open",
+    "events": [
+      {
+        "at": "2026-10-15T12:40:00+03:00",
+        "kind": "created",
+        "text": "тикет создан"
+      }
+    ],
+    "attach": "",
+    "expect": {
+      "action": "escalate"
+    }
+  }
+]

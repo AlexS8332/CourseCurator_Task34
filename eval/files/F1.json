@@ -1,0 +1,17 @@
+{
+  "id": "F1",
+  "goal": "Найди по карточкам заданий (docs/cards) и конспектам (docs/notes) все места, где упоминается завершающий инструмент с проверкой кодом: kb_answer, help_answer, support_reply, review_done или слово «финишёр». Ничего не меняй: ответ дай в summary списком строк вида «путь:строка — цитата», по одной на каждое найденное место, пути от корня с «/».",
+  "expect": {
+    "files_min": 0,
+    "files_allowed": [],
+    "writes": false,
+    "checks": [
+      {
+        "kind": "coverage",
+        "pattern": "kb_answer|help_answer|support_reply|review_done|финишёр",
+        "source": "docs/cards/*.md,docs/notes/*.md",
+        "min": 0.9
+      }
+    ]
+  }
+}

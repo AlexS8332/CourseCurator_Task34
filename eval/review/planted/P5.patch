@@ -1,0 +1,10 @@
+diff --git a/docs/notes/README.md b/docs/notes/README.md
+index f43c4e6..14dad0a 100644
+--- a/docs/notes/README.md
++++ b/docs/notes/README.md
+@@ -1,4 +1,4 @@
+ # Конспекты
+ 
+ Заметки по темам курса, не привязанные к конкретному заданию.
+-Именование: `NN-тема.md`, где NN — номер модуля.
++Именование: `NN-тема.md`, где NN — номер дня курса (или диапазон дней).

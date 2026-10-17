@@ -1,0 +1,186 @@
+{
+  "schema": 1,
+  "version": 1,
+  "questions": [
+    {
+      "id": "T01", "split": "test", "type": "docs",
+      "q": "Какой регламент сдачи задания: что идёт за чем?",
+      "answerable": true,
+      "expect": { "must": [["тест"], ["валидац"], ["Edge", "прогон"]], "note": "разработка → тесты → валидация → контрольный прогон с записью" },
+      "evidence": [
+        { "doc_id": "README.md", "quote": "Порядок сдачи задания: разработка → тесты → валидация результата → контрольный прогон в Edge с записью" }
+      ]
+    },
+    {
+      "id": "T02", "split": "test", "type": "docs",
+      "q": "Где лежат карточки заданий и что в них пишут?",
+      "answerable": true,
+      "expect": { "must": [["docs/cards"], ["вывод"]] },
+      "evidence": [
+        { "doc_id": "README.md", "quote": "карточка на задание: цель, что сделал, выводы" },
+        { "doc_id": ".claude/skills/aitr/SKILL.md", "quote": "Перед этим заполни карточку `docs/cards/NN-slug.md` — блоки «Что сделал», «Промпты и модели», «Грабли», «Выводы»" }
+      ]
+    },
+    {
+      "id": "T03", "split": "test", "type": "docs",
+      "q": "Что такое инвариант ИП-7 и в каком задании появились права этапа?",
+      "answerable": true,
+      "expect": { "must": [["отсутств"], ["15"]], "note": "запрет держится отсутствием инструмента; задание 15" },
+      "evidence": [
+        { "doc_id": "docs/тз-интерактивный-справочник-по-животным.md", "quote": "Запрет держится отсутствием инструмента, а не текстом" },
+        { "doc_id": "docs/cards/15-aitrenning-task15.md", "quote": "Запрет, который держится на отсутствии инструмента, — это запрет" }
+      ]
+    },
+    {
+      "id": "T04", "split": "test", "type": "docs",
+      "q": "Почему репозиторий задания создают приватным и когда aitr new запускают с -NoRemote?",
+      "answerable": true,
+      "expect": { "must": [["приватн"], ["NoRemote"]] },
+      "evidence": [
+        { "doc_id": ".claude/skills/aitr/SKILL.md", "quote": "По умолчанию репозиторий приватный; `-Public` делает его публичным. Если репозиторий не нужен или `gh` не настроен — добавь `-NoRemote`" }
+      ]
+    },
+    {
+      "id": "T05", "split": "test", "type": "docs",
+      "q": "На какие грабли наступили в задании 30 с потоковым ответом веб-чата?",
+      "answerable": true,
+      "expect": { "must": [["textContent", "текстов", "узл", "пуст"]], "note": "пузырь с textContent = \"\" не создавал текстового узла; текст — отдельным узлом" },
+      "evidence": [
+        { "doc_id": "docs/cards/30-animal-guide-private-service.md", "quote": "Потоковый ответ в веб-чате не отрисовывался — никогда" },
+        { "doc_id": "docs/cards/30-animal-guide-private-service.md", "quote": "Текст пузыря — всегда отдельным узлом" }
+      ]
+    },
+    {
+      "id": "T06", "split": "test", "type": "docs",
+      "q": "Как записать видео контрольного прогона задания?",
+      "answerable": true,
+      "expect": { "must": [["aitr record"], ["тест"]] },
+      "evidence": [
+        { "doc_id": ".claude/skills/aitr/SKILL.md", "quote": "Конвейер `aitr record` идёт по этапам и останавливается на первом провале" },
+        { "doc_id": "README.md", "quote": "тесты -> валидация -> прогон в Edge с записью видео" }
+      ]
+    },
+    {
+      "id": "T07", "split": "test", "type": "docs",
+      "q": "Какие стеки шаблонов есть у aitr new?",
+      "answerable": true,
+      "expect": { "must": [["go"], ["python"], ["node"], ["prompt"]] },
+      "evidence": [
+        { "doc_id": "README.md", "quote": "Стеки шаблонов: `go`, `python`, `node`, `prompt`" }
+      ]
+    },
+    {
+      "id": "T08", "split": "test", "type": "docs",
+      "q": "Что проверяет aitr doctor?",
+      "answerable": true,
+      "expect": { "must": [["тулчейн"], ["ключ"]] },
+      "evidence": [
+        { "doc_id": ".claude/skills/aitr/SKILL.md", "quote": "проверка среды: метаданные, git, тулчейн, ключи, документация" }
+      ]
+    },
+    {
+      "id": "T09", "split": "test", "type": "docs",
+      "q": "Чем память задачи отличается от профиля собеседника в задании 25?",
+      "answerable": true,
+      "expect": { "must": [["профил"], ["разговор", "диалог"]] },
+      "evidence": [
+        { "doc_id": "docs/cards/25-animal-guide-rag-chat.md", "quote": "Ограничения разговора не попадают в профиль без «всегда»" },
+        { "doc_id": "docs/cards/25-animal-guide-rag-chat.md", "quote": "Граница между «правилом этого разговора» и «привычкой человека» — главная тонкость" }
+      ]
+    },
+    {
+      "id": "T10", "split": "test", "type": "docs",
+      "q": "Что такое edgerec и что он делает?",
+      "answerable": true,
+      "expect": { "must": [["Edge"], ["видео"]] },
+      "evidence": [
+        { "doc_id": "tools/edgerec/README.md", "quote": "выполняет сценарий — клики, ввод, ожидания, проверки — и пишет всё происходящее в видео" }
+      ]
+    },
+
+    {
+      "id": "D01", "split": "dev", "type": "docs",
+      "q": "Зачем на стенде нужна контрольная дорожка, если без механизма всё и так прилично?",
+      "answerable": true,
+      "expect": { "must": [["контрольн"], ["разниц"]] },
+      "evidence": [
+        { "doc_id": "docs/cards/15-aitrenning-task15.md", "quote": "Контрольная дорожка нужна не для того, чтобы показать, что без механизма всё плохо" }
+      ]
+    },
+    {
+      "id": "D02", "split": "dev", "type": "docs",
+      "q": "Почему у локальной модели Qwen3.5 выключено рассуждение?",
+      "answerable": true,
+      "expect": { "must": [["max_tokens", "пуст"], ["none", "выключ"]] },
+      "evidence": [
+        { "doc_id": "docs/cards/26-animal-guide-local-llm.md", "quote": "Рассуждение Qwen3.5 включено по умолчанию" }
+      ]
+    },
+    {
+      "id": "D03", "split": "dev", "type": "docs",
+      "q": "Как устроены два уровня git в каталоге курса?",
+      "answerable": true,
+      "expect": { "must": [["gitignore"], ["корн"]] },
+      "evidence": [
+        { "doc_id": "README.md", "quote": "задания не попадают в корневую историю" }
+      ]
+    },
+    {
+      "id": "D04", "split": "dev", "type": "docs",
+      "q": "Как в PowerShell передать многострочное сообщение коммита, если heredoc нет?",
+      "answerable": true,
+      "expect": { "must": [["here-string"], ["commit -F", "файл"]] },
+      "evidence": [
+        { "doc_id": "docs/cards/30-animal-guide-private-service.md", "quote": "сообщение коммита через here-string в файл" }
+      ]
+    },
+    {
+      "id": "D05", "split": "dev", "type": "docs",
+      "q": "Почему «ответ с источниками» проверяется кодом, а не просьбой в промпте?",
+      "answerable": true,
+      "expect": { "must": [["код"], ["отказ", "подсказк", "схем"]] },
+      "evidence": [
+        { "doc_id": "docs/cards/24-animal-guide-rag-cite.md", "quote": "«Ответ с источниками» должен проверяться кодом, а не просьбой в промпте" }
+      ]
+    },
+    {
+      "id": "D06", "split": "dev", "type": "docs",
+      "q": "Чем агент отличается от чата?",
+      "answerable": true,
+      "expect": { "must": [["остановк"], ["код", "программ"]] },
+      "evidence": [
+        { "doc_id": "docs/notes/06-агенты-и-инструменты.md", "quote": "Чат — один вызов модели: вопрос ушёл, текст пришёл" }
+      ]
+    },
+
+    {
+      "id": "S01", "split": "dev", "type": "state",
+      "q": "На какой ветке сейчас корень курса?",
+      "answerable": true,
+      "note": "ref:branch"
+    },
+    {
+      "id": "S02", "split": "dev", "type": "state",
+      "q": "Какие задания сейчас не в статусе done?",
+      "answerable": true,
+      "note": "ref:not-done"
+    },
+    {
+      "id": "S03", "split": "dev", "type": "state",
+      "q": "Сколько всего заданий в каталоге курса?",
+      "answerable": true,
+      "note": "ref:count"
+    },
+    {
+      "id": "S04", "split": "dev", "type": "state",
+      "q": "Как прошёл последний контрольный прогон задания 30: пройден ли и сколько проверок?",
+      "answerable": true,
+      "note": "ref:last-run:30"
+    },
+
+    { "id": "O01", "split": "out", "type": "out", "q": "Сколько весит манул?", "answerable": false },
+    { "id": "O02", "split": "out", "type": "out", "q": "Как развернуть Kubernetes-кластер на трёх узлах?", "answerable": false },
+    { "id": "O03", "split": "out", "type": "out", "q": "Какая сегодня погода в Москве?", "answerable": false },
+    { "id": "O04", "split": "out", "type": "out", "q": "Кто выиграл последний чемпионат мира по футболу?", "answerable": false }
+  ]
+}

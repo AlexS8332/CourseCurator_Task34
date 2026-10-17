@@ -1,0 +1,23 @@
+{
+  "id": "F2",
+  "goal": "Обнови таблицу команд в разделе «## Команды» файла .claude/skills/aitr/SKILL.md по диспетчеру scripts/aitr.ps1: каждая команда из switch ($cmd) диспетчера aitr должна быть в таблице с актуальными флагами (сверь флаги с Get-AitrOption и Test-AitrSwitch в функциях Invoke-Aitr*). Остальные разделы SKILL.md не трогай. Если команды описаны ещё где-то (docs/faq.md, README), приведи и это описание в соответствие.",
+  "expect": {
+    "files_min": 2,
+    "files_allowed": [".claude/skills/", "docs/", "README.md"],
+    "writes": true,
+    "checks": [
+      {"kind": "contains", "path": ".claude/skills/aitr/SKILL.md", "text": "| `aitr new "},
+      {"kind": "contains", "path": ".claude/skills/aitr/SKILL.md", "text": "| `aitr list"},
+      {"kind": "contains", "path": ".claude/skills/aitr/SKILL.md", "text": "| `aitr go "},
+      {"kind": "contains", "path": ".claude/skills/aitr/SKILL.md", "text": "| `aitr doctor "},
+      {"kind": "contains", "path": ".claude/skills/aitr/SKILL.md", "text": "| `aitr status "},
+      {"kind": "contains", "path": ".claude/skills/aitr/SKILL.md", "text": "| `aitr sync"},
+      {"kind": "contains", "path": ".claude/skills/aitr/SKILL.md", "text": "| `aitr restore"},
+      {"kind": "contains", "path": ".claude/skills/aitr/SKILL.md", "text": "| `aitr card "},
+      {"kind": "contains", "path": ".claude/skills/aitr/SKILL.md", "text": "| `aitr record "},
+      {"kind": "contains", "path": ".claude/skills/aitr/SKILL.md", "text": "| `aitr help"},
+      {"kind": "regex", "path": ".claude/skills/aitr/SKILL.md", "pattern": "(?m)^\\| `aitr new [^|\\n]*-Status"},
+      {"kind": "diff_within", "path": ".claude/skills/aitr/SKILL.md", "text": "## Команды"}
+    ]
+  }
+}

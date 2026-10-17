@@ -1,0 +1,38 @@
+[
+  {
+    "id": "u-author",
+    "name": "Алексей, автор курса (рабочая машина)",
+    "role": "author",
+    "os": "Windows 10",
+    "shell": "PowerShell 5.1",
+    "tools": { "go": true, "uv": true, "gh": true, "node": false, "python": true, "mingw": true },
+    "assignments": ["22", "24", "25", "30", "31"]
+  },
+  {
+    "id": "u-author-new",
+    "name": "Алексей, автор курса (новая машина после aitr restore: ключи не перенесены, mingw-w64 не стоит)",
+    "role": "author",
+    "os": "Windows 11",
+    "shell": "PowerShell 5.1",
+    "tools": { "go": true, "uv": true, "gh": true, "node": false, "python": false, "mingw": false },
+    "assignments": ["02", "16"]
+  },
+  {
+    "id": "u-peer",
+    "name": "Дмитрий, однокурсник (клонировал курс, свои задания ведёт на Python)",
+    "role": "peer",
+    "os": "macOS",
+    "shell": "zsh",
+    "tools": { "go": true, "uv": true, "gh": false, "node": true, "python": true },
+    "assignments": []
+  },
+  {
+    "id": "u-agent-31",
+    "name": "Claude Code, агент внутри задания 31 (course-help)",
+    "role": "agent",
+    "os": "Windows 10",
+    "shell": "PowerShell 5.1",
+    "tools": { "go": true, "uv": true, "gh": true, "node": false, "python": true, "mingw": true },
+    "assignments": ["31"]
+  }
+]

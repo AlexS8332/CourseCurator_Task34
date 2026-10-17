@@ -1,0 +1,19 @@
+{
+  "id": "F3",
+  "goal": "Проверь карточки заданий 26–30 (docs/cards/26-*.md … 30-*.md) по шаблону templates/card.md и реестру заданий: все разделы шаблона на месте (## Цель, ## Что сделал, ## Промпты и модели, ## Грабли, ## Выводы), а URL репозитория в таблице карточки совпадает с полем repo реестра (docs/registry.json; если он недоступен — его источник assignments/NN-slug/assignment.json). Отчёт запиши в новый файл docs/checks/cards-26-30.md: по строке на карточку с именем файла карточки и вердиктом — «нарушение: …» (чего не хватает или что не совпадает) либо «ок». Расхождение URL, которое можно исправить по реестру, исправь в самой карточке.",
+  "expect": {
+    "files_min": 2,
+    "files_allowed": ["docs/"],
+    "writes": true,
+    "checks": [
+      {"kind": "exists", "path": "docs/checks/cards-26-30.md"},
+      {"kind": "contains", "path": "docs/checks/cards-26-30.md", "text": "27-animal-guide-local-app"},
+      {"kind": "contains", "path": "docs/checks/cards-26-30.md", "text": "29-animal-guide-local-tune"},
+      {"kind": "regex", "path": "docs/checks/cards-26-30.md", "pattern": "(?mi)^.*27-animal-guide-local-app.*(нарушени[ея]|нет раздела|отсутству|не хватает|без раздела).*$"},
+      {"kind": "regex", "path": "docs/checks/cards-26-30.md", "pattern": "(?mi)^.*29-animal-guide-local-tune.*(нарушени[ея]|не совпада|расхожден|отличает).*$"},
+      {"kind": "absent", "path": "docs/checks/cards-26-30.md", "pattern": "(?mi)^.*26-animal-guide-local-llm.*(нарушени[ея]:|нет раздела|не совпада|отсутству|расхожден).*$"},
+      {"kind": "absent", "path": "docs/checks/cards-26-30.md", "pattern": "(?mi)^.*28-animal-guide-local-rag.*(нарушени[ея]:|нет раздела|не совпада|отсутству|расхожден).*$"},
+      {"kind": "absent", "path": "docs/checks/cards-26-30.md", "pattern": "(?mi)^.*30-animal-guide-private-service.*(нарушени[ея]:|нет раздела|не совпада|отсутству|расхожден).*$"}
+    ]
+  }
+}
