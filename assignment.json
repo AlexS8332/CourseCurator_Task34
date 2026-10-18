@@ -3,7 +3,7 @@
   "slug": "files-agent",
   "title": "Куратор курса: файловый агент на правах этапа — план, согласие, правки в worktree, diff; сценарии на файлах курса (DeepSeek, Go + браузер)",
   "stack": "go",
-  "status": "planned",
+  "status": "done",
   "created": "2026-10-17",
   "updated": "2026-10-17",
   "repo": "",
